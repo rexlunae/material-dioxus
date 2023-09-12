@@ -1,5 +1,5 @@
+use dioxus::prelude::*;
 use wasm_bindgen::prelude::*;
-use yew::prelude::*;
 
 #[wasm_bindgen(module = "/build/mwc-icon.js")]
 extern "C" {
@@ -15,19 +15,15 @@ loader_hack!(Icon);
 /// Props for [`MatIcon`]
 ///
 /// [MWC Documentation for properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/icon#propertiesattributes)
-#[derive(Debug, Properties, PartialEq, Clone)]
-pub struct IconProps {
-    pub children: Children,
+#[derive(Props)]
+pub struct IconProps<'a> {
+    pub children: Element<'a>,
 }
 
-component!(
-    MatIcon,
-    IconProps,
-    |props: &IconProps| {
-        html! {
-             <mwc-icon>{props.children.clone()}</mwc-icon>
-        }
-    },
-    Icon,
-    "icon"
-);
+fn render<'a>(cx: Scope<'a, IconProps<'a>>) -> Element<'a> {
+    render! {
+        mwc-icon { &cx.props.children }
+    }
+}
+
+component!('a, MatIcon, IconProps, render, Icon, "icon");

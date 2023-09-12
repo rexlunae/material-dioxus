@@ -1,6 +1,5 @@
-use crate::{bool_to_option, to_option_string};
+use dioxus::{core::AttributeValue, prelude::*};
 use wasm_bindgen::prelude::*;
-use yew::prelude::*;
 
 #[wasm_bindgen(module = "/build/mwc-circular-progress.js")]
 extern "C" {
@@ -18,31 +17,33 @@ loader_hack!(CircularProgress);
 /// Props for [`MatCircularProgress`]
 ///
 /// [MWC Documentation for properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/circular-progress#propertiesattributes)
-#[derive(Debug, Properties, PartialEq, Clone)]
+#[derive(Props, PartialEq)]
 pub struct CircularProgressProps {
-    #[prop_or_default]
+    #[props(default)]
     pub indeterminate: bool,
-    #[prop_or_default]
+    #[props(default)]
     pub progress: f32,
-    #[prop_or_default]
+    #[props(default)]
     pub density: u32,
-    #[prop_or_default]
+    #[props(default)]
     pub closed: bool,
+}
+
+fn render(cx: Scope<CircularProgressProps>) -> Element {
+    render! {
+        mwc-circular-progress {
+            "indeterminate": bool_attr!(cx.props.indeterminate),
+            "progress": AttributeValue::Float(cx.props.progress.into()),
+            "density": AttributeValue::Int(cx.props.density.into()),
+            "closed": bool_attr!(cx.props.closed),
+        }
+    }
 }
 
 component!(
     MatCircularProgress,
     CircularProgressProps,
-    |props: &CircularProgressProps| {
-        html! {
-             <mwc-circular-progress
-                 indeterminate={bool_to_option(props.indeterminate)}
-                 progress={to_option_string(props.progress)}
-                 density={to_option_string(props.density)}
-                 closed={bool_to_option(props.closed)}
-             ></mwc-circular-progress>
-        }
-    },
+    render,
     CircularProgress,
     "circular-progress"
 );

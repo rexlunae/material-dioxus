@@ -21,8 +21,7 @@
 //! More information can be found on the [website](https://yew-material.web.app) and in the [GitHub README](https://github.com/hamza1311/yew-material)
 
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{CustomEvent, Event};
+use wasm_bindgen::JsValue;
 mod utils;
 
 // this macro is defined here so we can access it in the modules
@@ -46,46 +45,60 @@ macro_rules! component {
         paste::paste! {
             #[doc = "The `mwc-" $mwc_name "` component"]
             #[doc = ""]
-            #[doc = "[MWC Documentation](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/"$mwc_name")"]
-            pub struct $comp;
-       }
-        impl yew::Component for $comp {
-            type Message = ();
-            type Properties = $props;
-
-            fn create(_: &Context<Self>) -> Self {
+            #[doc = "[MWC Documentation](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/" $mwc_name ")"]
+            #[allow(non_snake_case)]
+            pub fn $comp(cx: Scope<$props>) -> Element {
                 $mwc_to_initialize::ensure_loaded();
-                Self
-           }
-
-            fn view(&self, ctx: &Context<Self>) -> Html {
-                let props = ctx.props();
-                $html(props)
-           }
-       }
+                $html(cx)
+            }
+        }
+   };
+    ('a, $comp: ident, $props: ty, $html: expr, $mwc_to_initialize: ident, $mwc_name: literal) => {
+        paste::paste! {
+            #[doc = "The `mwc-" $mwc_name "` component"]
+            #[doc = ""]
+            #[doc = "[MWC Documentation](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/" $mwc_name ")"]
+            #[allow(non_snake_case)]
+            pub fn $comp<'a>(cx: Scope<'a, $props<'a>>) -> Element<'a> {
+                $mwc_to_initialize::ensure_loaded();
+                $html(cx)
+            }
+        }
    };
 }
 
-fn bool_to_option(value: bool) -> Option<AttrValue> {
-    value.then_some(AttrValue::Static("true"))
+macro_rules! string_attr {
+    ($value:expr) => {
+        ::dioxus::core::AttributeValue::Text(&$value)
+    }; // (? $value:expr) => {{
+       //     ::dioxus::core::AttributeValue::Text(&$value)
+       // }};
 }
 
-fn to_option_string(s: impl Display) -> Option<AttrValue> {
-    let s = s.to_string();
-    if s.is_empty() {
-        None
-    } else {
-        Some(AttrValue::from(s))
-    }
+macro_rules! optional_string_attr {
+    ($value:expr) => {
+        $value
+            .as_ref()
+            .map(|s| ::dioxus::core::AttributeValue::Text(s.as_str()))
+            .unwrap_or(::dioxus::core::AttributeValue::None)
+    };
 }
 
-fn event_into_details(event: &Event) -> JsValue {
+macro_rules! bool_attr {
+    ($value:expr) => {
+        $value
+            .then_some(::dioxus::core::AttributeValue::Bool(true))
+            .unwrap_or(::dioxus::core::AttributeValue::None)
+    };
+}
+
+fn event_into_details(event: &web_sys::Event) -> JsValue {
     JsValue::from(event)
-        .dyn_into::<CustomEvent>()
+        .dyn_into::<web_sys::CustomEvent>()
         .unwrap_or_else(|_| panic!("could not convert to CustomEvent"))
         .detail()
 }
-fn event_details_into<T: JsCast>(event: &Event) -> T {
+fn event_details_into<T: JsCast>(event: &web_sys::Event) -> T {
     event_into_details(event).unchecked_into::<T>()
 }
 
@@ -234,10 +247,7 @@ pub mod menu;
 #[doc(hidden)]
 pub use menu::MatMenu;
 
-use std::fmt::Display;
-#[doc(hidden)]
-pub use utils::WeakComponentLink;
-use yew::virtual_dom::AttrValue;
+pub use utils::StaticCallback;
 
 #[wasm_bindgen(module = "/build/core.js")]
 extern "C" {

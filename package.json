@@ -2,7 +2,7 @@
   "name": "material-yew",
   "version": "1.0.0",
   "description": "WIP",
-  "main": "rollup.config.js",
+  "main": "rollup.config.mjs",
   "dependencies": {
     "@material/mwc-button": "0.27.0",
     "@material/mwc-checkbox": "0.27.0",
@@ -12,9 +12,9 @@
     "@material/mwc-drawer": "0.27.0",
     "@material/mwc-fab": "0.27.0",
     "@material/mwc-formfield": "0.27.0",
-    "@material/mwc-icon-button-toggle": "0.27.0",
-    "@material/mwc-icon-button": "0.27.0",
     "@material/mwc-icon": "0.27.0",
+    "@material/mwc-icon-button": "0.27.0",
+    "@material/mwc-icon-button-toggle": "0.27.0",
     "@material/mwc-linear-progress": "0.27.0",
     "@material/mwc-list": "0.27.0",
     "@material/mwc-menu": "0.27.0",
@@ -35,7 +35,7 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c rollup.config.mjs"
   },
   "keywords": [],
   "author": "",

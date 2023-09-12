@@ -25,8 +25,9 @@ use std::rc::Rc;
 
 use gloo::events::EventListener;
 use wasm_bindgen::JsValue;
-use web_sys::{Element, Event};
-use yew::{Callback, NodeRef};
+use web_sys::Event;
+
+use crate::StaticCallback;
 
 #[cfg(any(feature = "textfield", feature = "textarea"))]
 pub(crate) type ValidityTransformFn = dyn Fn(String, NativeValidityState) -> ValidityState;
@@ -38,7 +39,7 @@ pub struct ValidityTransform(pub(crate) Rc<ValidityTransformFn>);
 
 #[cfg(any(feature = "textfield", feature = "textarea"))]
 impl ValidityTransform {
-    pub(crate) fn new<F: Fn(String, NativeValidityState) -> ValidityState + 'static>(
+    pub fn new<F: Fn(String, NativeValidityState) -> ValidityState + 'static>(
         func: F,
     ) -> ValidityTransform {
         ValidityTransform(Rc::new(func))
@@ -53,14 +54,20 @@ impl PartialEq for ValidityTransform {
 }
 
 fn set_on_input_handler(
-    node_ref: &NodeRef,
-    callback: Callback<String>,
+    id: &str,
+    callback: StaticCallback<String>,
     convert: impl Fn((Event, JsValue)) -> String + 'static,
-) -> EventListener {
-    let element = node_ref.cast::<Element>().unwrap();
-    EventListener::new(&element, "input", move |event: &Event| {
-        let js_value = JsValue::from(event);
+) -> Option<EventListener> {
+    web_sys::window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .get_element_by_id(id)
+        .map(move |elem| {
+            EventListener::new(&elem, "input", move |event: &Event| {
+                let js_value = JsValue::from(event);
 
-        callback.emit(convert((event.clone(), js_value)))
-    })
+                callback.call(convert((event.clone(), js_value)))
+            })
+        })
 }

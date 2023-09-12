@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "material-yew",
-    "website",
-    "screenshots"
+    "material-dioxus",
+    # "website",
+    # "screenshots"
 ]
