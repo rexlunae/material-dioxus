@@ -247,6 +247,15 @@ pub mod menu;
 #[doc(hidden)]
 pub use menu::MatMenu;
 
+#[cfg(feature = "theming")]
+pub mod theming;
+#[cfg(feature = "theming")]
+#[doc(hidden)]
+pub use theming::MatTheme;
+
+#[cfg(feature = "palette")]
+pub mod palette;
+
 pub use utils::StaticCallback;
 
 #[wasm_bindgen(module = "/build/core.js")]
