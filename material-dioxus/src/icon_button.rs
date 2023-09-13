@@ -29,19 +29,23 @@ pub struct IconButtonProps<'a> {
 
 fn render<'a>(cx: Scope<'a, IconButtonProps<'a>>) -> Element<'a> {
     match &cx.props.children {
-        Some(children) => render! {
-            mwc-icon-button {
-                "label": optional_string_attr!(cx.props.label),
-                "icon": optional_string_attr!(cx.props.icon),
-                "disabled": bool_attr!(cx.props.disabled),
-                children
+        Some(children) => {
+            render! {
+                mwc-icon-button {
+                    "label": optional_string_attr!(cx.props.label),
+                    "icon": optional_string_attr!(cx.props.icon),
+                    "disabled": bool_attr!(cx.props.disabled),
+                    children
+                }
             }
-        },
-        None => render! {
-            mwc-icon-button {
-                "label": optional_string_attr!(cx.props.label),
-                "icon": optional_string_attr!(cx.props.icon),
-                "disabled": bool_attr!(cx.props.disabled),
+        }
+        None => {
+            render! {
+                mwc-icon-button {
+                    "label": optional_string_attr!(cx.props.label),
+                    "icon": optional_string_attr!(cx.props.icon),
+                    "disabled": bool_attr!(cx.props.disabled),
+                }
             }
         }
     }

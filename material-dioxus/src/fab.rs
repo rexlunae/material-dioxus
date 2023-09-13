@@ -35,27 +35,31 @@ pub struct FabProps<'a> {
 
 fn render<'a>(cx: Scope<'a, FabProps<'a>>) -> Element<'a> {
     match &cx.props.children {
-        Some(children) => render! {
-            mwc-fab {
-                "label": optional_string_attr!(cx.props.label),
-                "icon": optional_string_attr!(cx.props.icon),
-                "mini": bool_attr!(cx.props.mini),
-                "reducedTouchTarget": bool_attr!(cx.props.reduced_touch_target),
-                "extended": bool_attr!(cx.props.extended),
-                "showIconAtEnd": bool_attr!(cx.props.show_icon_at_end),
-                children
+        Some(children) => {
+            render! {
+                mwc-fab {
+                    "label": optional_string_attr!(cx.props.label),
+                    "icon": optional_string_attr!(cx.props.icon),
+                    "mini": bool_attr!(cx.props.mini),
+                    "reducedTouchTarget": bool_attr!(cx.props.reduced_touch_target),
+                    "extended": bool_attr!(cx.props.extended),
+                    "showIconAtEnd": bool_attr!(cx.props.show_icon_at_end),
+                    children
+                }
             }
-        },
-        None => render! {
-            mwc-fab {
-                "label": optional_string_attr!(cx.props.label),
-                "icon": optional_string_attr!(cx.props.icon),
-                "mini": bool_attr!(cx.props.mini),
-                "reducedTouchTarget": bool_attr!(cx.props.reduced_touch_target),
-                "extended": bool_attr!(cx.props.extended),
-                "showIconAtEnd": bool_attr!(cx.props.show_icon_at_end),
+        }
+        None => {
+            render! {
+                mwc-fab {
+                    "label": optional_string_attr!(cx.props.label),
+                    "icon": optional_string_attr!(cx.props.icon),
+                    "mini": bool_attr!(cx.props.mini),
+                    "reducedTouchTarget": bool_attr!(cx.props.reduced_touch_target),
+                    "extended": bool_attr!(cx.props.extended),
+                    "showIconAtEnd": bool_attr!(cx.props.show_icon_at_end),
+                }
             }
-        },
+        }
     }
 }
 

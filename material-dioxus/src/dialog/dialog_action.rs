@@ -1,5 +1,5 @@
-use std::fmt;
 use dioxus::prelude::*;
+use std::fmt;
 
 /// Dialog action type.
 #[derive(Clone, PartialEq)]
@@ -36,7 +36,8 @@ pub struct ActionProps<'a> {
 
 /// Defines actions for [`MatDialog`][crate::MatDialog].
 ///
-/// The passed children are wrapped in a `span` with the required attributes set.
+/// The passed children are wrapped in a `span` with the required attributes
+/// set.
 #[allow(non_snake_case)]
 pub fn MatDialogAction<'a>(cx: Scope<'a, ActionProps<'a>>) -> Element<'a> {
     render! {

@@ -11,6 +11,7 @@ use wasm_bindgen::JsCast;
 use web_sys::Node;
 use web_sys::ValidityState as NativeValidityState;
 
+#[rustfmt::skip]
 // mod dioxus_elements {
 //     pub use dioxus::prelude::dioxus_elements::*;
 //

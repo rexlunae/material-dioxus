@@ -70,9 +70,9 @@ macro_rules! component {
 macro_rules! string_attr {
     ($value:expr) => {
         ::dioxus::core::AttributeValue::Text(&$value)
-    }; // (? $value:expr) => {{
-       //     ::dioxus::core::AttributeValue::Text(&$value)
-       // }};
+    }; /* (? $value:expr) => {{
+        *     ::dioxus::core::AttributeValue::Text(&$value)
+        * }}; */
 }
 
 macro_rules! optional_string_attr {

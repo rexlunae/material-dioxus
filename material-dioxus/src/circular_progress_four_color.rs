@@ -1,4 +1,4 @@
-use dioxus::{prelude::*, core::AttributeValue};
+use dioxus::{core::AttributeValue, prelude::*};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(module = "/build/mwc-circular-progress-four-color.js")]
