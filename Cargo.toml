@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "material-dioxus",
+    "demo",
     # "website",
     # "screenshots"
 ]
