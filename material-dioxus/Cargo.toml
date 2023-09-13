@@ -2,7 +2,7 @@
 name = "material-dioxus"
 version = "0.0.1-dev"
 authors = ["RubixDev <silas.groh@t-online.de>", "Hamza <muhammadhamza1311@gmail.com>"]
-edition = "2018"
+edition = "2021"
 readme = "../README.md"
 repository = "https://github.com/RubixDev/material-dioxus"
 keywords = ["material-design", "dioxus", "wrapper", "wasm"]
