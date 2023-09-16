@@ -1,9 +1,13 @@
+use std::collections::HashSet;
+
 use dioxus::prelude::*;
 use material_dioxus::{
     dialog::{ActionType, MatDialogAction},
-    text_inputs::{TextFieldType, ValidityState, ValidityTransform},
-    MatButton, MatCheckbox, MatCircularProgress, MatCircularProgressFourColor, MatDialog, MatFab,
-    MatFormfield, MatIcon, MatIconButton, MatRadio, MatSwitch, MatTextField, MatTheme,
+    list::ListIndex,
+    text_inputs::{TextAreaCharCounter, TextFieldType, ValidityState, ValidityTransform},
+    MatButton, MatCheckListItem, MatCheckbox, MatCircularProgress, MatCircularProgressFourColor,
+    MatDialog, MatFab, MatFormfield, MatIcon, MatIconButton, MatList, MatListItem,
+    MatListSeparator, MatRadio, MatRadioListItem, MatSwitch, MatTextArea, MatTextField, MatTheme,
 };
 
 fn main() {
@@ -18,6 +22,7 @@ fn app(cx: Scope) -> Element {
     let textfield_value = use_state(cx, String::new);
     let basic_dialog_open = use_state(cx, || false);
     let scrollable_dialog_open = use_state(cx, || false);
+    let textarea_value = use_state(cx, String::new);
 
     render! {
         style {
@@ -38,9 +43,73 @@ body {{
 html {{
     color-scheme: light dark;
 }}
+
+.list-demo {{
+    padding: 1rem;
+    border: 1px dotted currentColor;
+    min-width: 15rem;
+}}
 "
         }
         MatTheme {}
+
+        div {
+            class: "demo",
+            ListDemo1 {}
+            ListDemo2 {}
+            ListDemo3 {}
+            ListDemo4 {}
+        }
+
+        div {
+            class: "demo",
+            MatTextArea { label: "Standard", cols: 10, rows: 2 }
+
+            MatTextArea {
+                label: "Outlined",
+                outlined: true,
+                value: "{textarea_value}",
+                _oninput: {
+                    to_owned![textarea_value];
+                    move |new_value| textarea_value.set(new_value)
+                },
+                max_length: 42,
+                char_counter: TextAreaCharCounter::External,
+            }
+            span { "value: {textarea_value}" }
+
+            MatTextArea {
+                label: "Internal char counter",
+                outlined: true,
+                max_length: 10,
+                char_counter: TextAreaCharCounter::Internal,
+            }
+
+            MatTextArea {
+                label: "What's the answer?",
+                validity_transform: ValidityTransform::new(move |val, _| {
+                    let mut state = ValidityState::new();
+                    if val == "42" {
+                        state.set_valid(true);
+                    } else {
+                        state.set_valid(false).set_bad_input(true);
+                    }
+                    state
+                }),
+                helper: "only \"42\" is valid",
+                max_length: 10,
+                char_counter: TextAreaCharCounter::External,
+            }
+            MatTextArea {
+                label: "Persistant helper",
+                helper: "I am helping",
+                helper_persistent: true,
+                placeholder: "placeholder",
+                max_length: 10,
+                char_counter: TextAreaCharCounter::Internal,
+            }
+            MatTextArea { label: "Disabled", disabled: true }
+        }
 
         div {
             class: "demo",
@@ -332,6 +401,103 @@ html {{
             MatButton { label: "test", icon: "code", disabled: true, raised: true }
             MatButton { label: "test", icon: "code", disabled: true, unelevated: true }
             MatButton { label: "test", icon: "code", disabled: true, dense: true }
+        }
+    }
+}
+
+#[allow(non_snake_case)]
+fn ListDemo1(cx: Scope) -> Element {
+    let selected = use_state(cx, || None);
+
+    render! {
+        div {
+            class: "list-demo",
+            MatList {
+                _onaction: {
+                    to_owned![selected];
+                    move |val: ListIndex| selected.set(val.unwrap_single())
+                },
+                MatListItem { "Item 0" }
+                MatListItem { "Item 1" }
+                MatListItem { "Item 2" }
+                MatListItem { "Item 3" }
+            }
+            code { "selected: {selected:?}" }
+        }
+    }
+}
+
+#[allow(non_snake_case)]
+fn ListDemo2(cx: Scope) -> Element {
+    let selected = use_state(cx, HashSet::new);
+
+    render! {
+        div {
+            class: "list-demo",
+            MatList {
+                multi: true,
+                activatable: true,
+                _onaction: {
+                    to_owned![selected];
+                    move |val: ListIndex| selected.set(val.unwrap_multi())
+                },
+                MatListItem { "Item 0" }
+                MatListSeparator {}
+                MatListItem { "Item 1", initially_selected: true, initially_activated: true }
+                MatListSeparator {}
+                MatListItem { "Item 2" }
+                MatListSeparator {}
+                MatListItem { "Item 3" }
+            }
+            code { "selected: {selected:?}" }
+        }
+    }
+}
+
+#[allow(non_snake_case)]
+fn ListDemo3(cx: Scope) -> Element {
+    let selected = use_state(cx, HashSet::new);
+
+    render! {
+        div {
+            class: "list-demo",
+            MatList {
+                multi: true,
+                _onaction: {
+                    to_owned![selected];
+                    move |val: ListIndex| selected.set(val.unwrap_multi())
+                },
+                MatCheckListItem { "Item 0" }
+                MatCheckListItem { "Item 1", initially_selected: true }
+                MatListSeparator { padded: true }
+                MatCheckListItem { "Item 2", left: true }
+                MatCheckListItem { "Item 3", left: true }
+            }
+            code { "selected: {selected:?}" }
+        }
+    }
+}
+
+#[allow(non_snake_case)]
+fn ListDemo4(cx: Scope) -> Element {
+    let selected = use_state(cx, HashSet::new);
+
+    render! {
+        div {
+            class: "list-demo",
+            MatList {
+                multi: true,
+                _onaction: {
+                    to_owned![selected];
+                    move |val: ListIndex| selected.set(val.unwrap_multi())
+                },
+                MatRadioListItem { "Item 0", group: "list-radio-1" }
+                MatRadioListItem { "Item 1", group: "list-radio-1", initially_selected: true }
+                MatListSeparator { padded: true }
+                MatRadioListItem { "Item 2", group: "list-radio-2", left: true, initially_selected: true }
+                MatRadioListItem { "Item 3", group: "list-radio-2", left: true }
+            }
+            code { "selected: {selected:?}" }
         }
     }
 }

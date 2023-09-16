@@ -5,49 +5,15 @@ use crate::text_inputs::{validity_state::ValidityStateJS, TextFieldType, Validit
 use crate::StaticCallback;
 use dioxus::core::AttributeValue;
 use dioxus::prelude::*;
-use rand::distributions::{Alphanumeric, DistString};
+use gloo::events::EventListener;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::Node;
 use web_sys::ValidityState as NativeValidityState;
 
-#[rustfmt::skip]
-// mod dioxus_elements {
-//     pub use dioxus::prelude::dioxus_elements::*;
-//
-//     // pub mod events {
-//     //     use super::super::MatTextFieldInputEvent;
-//     //     pub use dioxus::prelude::dioxus_elements::events::*;
-//     //
-//     //     #[inline]
-//     //     pub(in super::super) fn oninput<'a, E: dioxus::html::EventReturn<T>, T>(
-//     //         cx: &'a dioxus::core::ScopeState,
-//     //         mut f: impl FnMut(dioxus::core::Event<MatTextFieldInputEvent>) -> E + 'a,
-//     //     ) -> dioxus::core::Attribute<'a> {
-//     //         dioxus::core::Attribute::new(
-//     //             "oninput",
-//     //             cx.listener(move |e: dioxus::core::Event<MatTextFieldInputEvent>| {
-//     //                 f(e).spawn(cx);
-//     //             }),
-//     //             Some("mwc-textfield"),
-//     //             false,
-//     //         )
-//     //     }
-//     // }
-//
-//     pub struct mwctextfield;
-//     impl mwctextfield {
-//         pub const TAG_NAME: &str = "mwc-textfield";
-//         pub const NAME_SPACE: Option<&str> = Some("mwc-textfield");
-//
-//         pub const open: (&str, Option<&str>, bool) = ("open", Some("mwc-textfield"), false);
-//     }
-//     impl GlobalAttributes for mwctextfield {}
-// }
-
 #[wasm_bindgen(module = "/build/mwc-textfield.js")]
 extern "C" {
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     #[wasm_bindgen(extends = Node)]
     type TextField;
 
@@ -82,7 +48,6 @@ pub struct TextFieldProps<'a> {
     #[props(default)]
     pub open: bool,
     #[props(into)]
-    // TODO: really Option?
     pub value: Option<String>,
     #[props(default = TextFieldType::Text)]
     pub field_type: TextFieldType,
@@ -140,28 +105,29 @@ pub struct TextFieldProps<'a> {
     _lifetime: Option<PhantomData<&'a ()>>,
     #[props(into)]
     pub name: Option<String>,
+
+    #[props(default)]
+    pub webkit_date_picker: bool,
+    #[props(into)]
+    pub _onchange: Option<StaticCallback<String>>,
+
+    #[props(into, default)]
+    pub style: String,
+    #[props(into, default)]
+    pub class: String,
+    #[props(into)]
+    pub slot: Option<String>,
     #[props(default)]
     pub dialog_initial_focus: bool,
 }
 
 fn render<'a>(cx: Scope<'a, TextFieldProps<'a>>) -> Element<'a> {
-    let id = cx
-        .use_hook(|| {
-            let mut id = String::from("textfield-");
-            Alphanumeric.append_string(&mut rand::thread_rng(), &mut id, 11);
-            // make sure all initial values are properly set
-            cx.needs_update();
-            id
-        })
-        .as_str();
+    let id = crate::use_id(cx, "textfield");
     let input_listener = cx.use_hook(|| None);
+    let change_listener = cx.use_hook(|| None);
     let validity_transform_closure = cx.use_hook(|| None);
-    if let Some(elem) = web_sys::window()
-        .unwrap()
-        .document()
-        .unwrap()
-        .get_element_by_id(id)
-    {
+    if let Some(elem) = crate::get_elem_by_id(id) {
+        let target = elem.clone();
         let textfield = JsValue::from(elem).dyn_into::<TextField>().unwrap();
         textfield.set_type(&JsValue::from(cx.props.field_type.as_str()));
         textfield.set_value(&JsValue::from_str(
@@ -172,12 +138,18 @@ fn render<'a>(cx: Scope<'a, TextFieldProps<'a>>) -> Element<'a> {
                 .unwrap_or_default(),
         ));
         if let Some(listener) = cx.props._oninput.clone() {
-            *input_listener = set_on_input_handler(id, listener, |(_, detail)| {
+            *input_listener = Some(set_on_input_handler(&target, listener, |(_, detail)| {
                 detail
                     .unchecked_into::<MatTextFieldInputEvent>()
                     .target()
                     .value()
-            });
+            }));
+        }
+        if let Some(listener) = cx.props._onchange.clone() {
+            to_owned![textfield];
+            *change_listener = Some(EventListener::new(&target, "change", move |_| {
+                listener.call(textfield.value())
+            }));
         }
         if let (Some(transform), None) = (
             cx.props.validity_transform.clone(),
@@ -195,31 +167,37 @@ fn render<'a>(cx: Scope<'a, TextFieldProps<'a>>) -> Element<'a> {
     render! {
         mwc-textfield {
             id: id,
-            // open: bool_attr!(cx.props.open),
-            "open": bool_attr!(cx.props.open),
-            "label": optional_string_attr!(cx.props.label),
-            "placeholder": optional_string_attr!(cx.props.placeholder),
-            "prefix": optional_string_attr!(cx.props.prefix),
-            "suffix": optional_string_attr!(cx.props.suffix),
-            "icon": optional_string_attr!(cx.props.icon),
-            "iconTrailing": optional_string_attr!(cx.props.icon_trailing),
-            "disabled": bool_attr!(cx.props.disabled),
-            "charCounter": bool_attr!(cx.props.char_counter),
-            "outlined": bool_attr!(cx.props.outlined),
-            "helper": optional_string_attr!(cx.props.helper),
-            "helperPersistent": bool_attr!(cx.props.helper_persistent),
-            "required": bool_attr!(cx.props.required),
-            "maxLength": cx.props.max_length.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            "validationMessage": optional_string_attr!(cx.props.validation_message),
-            "pattern": optional_string_attr!(cx.props.pattern),
-            "min": optional_string_attr!(cx.props.min),
-            "max": optional_string_attr!(cx.props.max),
-            "size": cx.props.size.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            "step": cx.props.step.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            "autoValidate": bool_attr!(cx.props.auto_validate),
-            "validateOnInitialRender": bool_attr!(cx.props.validate_on_initial_render),
-            "name": optional_string_attr!(cx.props.name),
-            "dialogInitialFocus": bool_attr!(cx.props.dialog_initial_focus),
+
+            open: bool_attr!(cx.props.open),
+            label: optional_string_attr!(cx.props.label),
+            placeholder: optional_string_attr!(cx.props.placeholder),
+            prefix: optional_string_attr!(cx.props.prefix),
+            suffix: optional_string_attr!(cx.props.suffix),
+            icon: optional_string_attr!(cx.props.icon),
+            iconTrailing: optional_string_attr!(cx.props.icon_trailing),
+            disabled: bool_attr!(cx.props.disabled),
+            charCounter: bool_attr!(cx.props.char_counter),
+            outlined: bool_attr!(cx.props.outlined),
+            helper: optional_string_attr!(cx.props.helper),
+            helperPersistent: bool_attr!(cx.props.helper_persistent),
+            required: bool_attr!(cx.props.required),
+            maxLength: cx.props.max_length.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            validationMessage: optional_string_attr!(cx.props.validation_message),
+            pattern: optional_string_attr!(cx.props.pattern),
+            min: optional_string_attr!(cx.props.min),
+            max: optional_string_attr!(cx.props.max),
+            size: cx.props.size.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            step: cx.props.step.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            autoValidate: bool_attr!(cx.props.auto_validate),
+            validateOnInitialRender: bool_attr!(cx.props.validate_on_initial_render),
+            name: optional_string_attr!(cx.props.name),
+            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
+            webkitDatePicker: bool_attr!(cx.props.webkit_date_picker),
+
+            style: string_attr!(cx.props.style),
+            class: string_attr!(cx.props.class),
+            slot: optional_string_attr!(cx.props.slot),
+            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
         }
     }
 }

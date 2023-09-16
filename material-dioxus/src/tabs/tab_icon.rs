@@ -28,18 +28,16 @@ impl Component for MatTabIcon {
         let children = props
             .children
             .iter()
-            .map(|child| {
-                match child {
-                    Html::VTag(mut vtag) => {
-                        vtag.add_attribute("slot", "title");
-                        Html::VTag(vtag)
-                    }
-                    _ => {
-                        html! {
-                             <span slot={SLOT}>
-                                 {child}
-                             </span>
-                        }
+            .map(|child| match child {
+                Html::VTag(mut vtag) => {
+                    vtag.add_attribute("slot", "title");
+                    Html::VTag(vtag)
+                }
+                _ => {
+                    html! {
+                         <span slot={SLOT}>
+                             {child}
+                         </span>
                     }
                 }
             })

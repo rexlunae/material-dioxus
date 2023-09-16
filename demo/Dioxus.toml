@@ -23,7 +23,7 @@ title = "Dioxus | An elegant GUI library for Rust"
 
 index_on_404 = true
 
-watch_path = ["src", "/home/deck/coding/rust/material-dioxus/material-dioxus/"]
+watch_path = ["src"]
 
 # include `assets` in web platform
 [web.resource]

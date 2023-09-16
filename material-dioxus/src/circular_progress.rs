@@ -24,18 +24,29 @@ pub struct CircularProgressProps {
     #[props(default)]
     pub progress: f32,
     #[props(default)]
-    pub density: u32,
+    pub density: i64,
     #[props(default)]
     pub closed: bool,
+
+    #[props(into, default)]
+    pub style: String,
+    #[props(into, default)]
+    pub class: String,
+    #[props(into)]
+    pub slot: Option<String>,
 }
 
 fn render(cx: Scope<CircularProgressProps>) -> Element {
     render! {
         mwc-circular-progress {
-            "indeterminate": bool_attr!(cx.props.indeterminate),
-            "progress": AttributeValue::Float(cx.props.progress.into()),
-            "density": AttributeValue::Int(cx.props.density.into()),
-            "closed": bool_attr!(cx.props.closed),
+            indeterminate: bool_attr!(cx.props.indeterminate),
+            progress: AttributeValue::Float(cx.props.progress.into()),
+            density: AttributeValue::Int(cx.props.density),
+            closed: bool_attr!(cx.props.closed),
+
+            style: string_attr!(cx.props.style),
+            class: string_attr!(cx.props.class),
+            slot: optional_string_attr!(cx.props.slot),
         }
     }
 }

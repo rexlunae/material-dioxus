@@ -1,5 +1,10 @@
+use std::marker::PhantomData;
+
 use dioxus::prelude::*;
+use gloo::events::EventListener;
 use wasm_bindgen::prelude::*;
+
+use crate::StaticCallback;
 
 #[wasm_bindgen(module = "/build/mwc-switch.js")]
 extern "C" {
@@ -18,8 +23,8 @@ loader_hack!(Switch);
 ///
 /// - [Properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/switch#propertiesattributes)
 /// - [Events](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/switch#events)
-#[derive(Props, PartialEq)]
-pub struct SwitchProps {
+#[derive(Props)]
+pub struct SwitchProps<'a> {
     #[props(default)]
     pub selected: bool,
     #[props(default)]
@@ -28,17 +33,49 @@ pub struct SwitchProps {
     pub name: Option<String>,
     #[props(into)]
     pub value: Option<String>,
+    #[props(into)]
+    // the name cannot start with `on` or dioxus will expect an `EventHandler` which aren't static
+    // and thus cannot be used here
+    pub _onclick: Option<StaticCallback<()>>,
+    _lifetime: Option<PhantomData<&'a ()>>,
+
+    #[props(into, default)]
+    pub style: String,
+    #[props(into, default)]
+    pub class: String,
+    #[props(into)]
+    pub slot: Option<String>,
+    #[props(default)]
+    pub dialog_initial_focus: bool,
 }
 
-fn render(cx: Scope<SwitchProps>) -> Element {
+fn render<'a>(cx: Scope<'a, SwitchProps<'a>>) -> Element<'a> {
+    let id = crate::use_id(cx, "switch");
+    let click_listener = cx.use_hook(|| None);
+    if let Some(elem) = crate::get_elem_by_id(id) {
+        let target = elem;
+        if let Some(listener) = cx.props._onclick.clone() {
+            *click_listener = Some(EventListener::new(&target, "click", move |_| {
+                listener.call(())
+            }));
+        }
+    }
+
     render! {
         mwc-switch {
-            "selected": bool_attr!(cx.props.selected),
-            "disabled": bool_attr!(cx.props.disabled),
-            "name": optional_string_attr!(cx.props.name),
-            "value": optional_string_attr!(cx.props.value),
+            id: id,
+
+            selected: bool_attr!(cx.props.selected),
+            disabled: bool_attr!(cx.props.disabled),
+            name: optional_string_attr!(cx.props.name),
+            value: optional_string_attr!(cx.props.value),
+
+            style: string_attr!(cx.props.style),
+            class: string_attr!(cx.props.class),
+            slot: optional_string_attr!(cx.props.slot),
+            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
         }
     }
 }
 
-component!(MatSwitch, SwitchProps, render, Switch, "switch");
+component!('a, MatSwitch, SwitchProps, render, Switch, "switch");

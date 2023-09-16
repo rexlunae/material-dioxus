@@ -27,15 +27,26 @@ pub struct CircularProgressFourColorProps {
     pub density: u32,
     #[props(default)]
     pub closed: bool,
+
+    #[props(into, default)]
+    pub style: String,
+    #[props(into, default)]
+    pub class: String,
+    #[props(into)]
+    pub slot: Option<String>,
 }
 
 fn render(cx: Scope<CircularProgressFourColorProps>) -> Element {
     render! {
         mwc-circular-progress-four-color {
-            "indeterminate": bool_attr!(cx.props.indeterminate),
-            "progress": AttributeValue::Float(cx.props.progress.into()),
-            "density": AttributeValue::Int(cx.props.density.into()),
-            "closed": bool_attr!(cx.props.closed),
+            indeterminate: bool_attr!(cx.props.indeterminate),
+            progress: AttributeValue::Float(cx.props.progress.into()),
+            density: AttributeValue::Int(cx.props.density.into()),
+            closed: bool_attr!(cx.props.closed),
+
+            style: string_attr!(cx.props.style),
+            class: string_attr!(cx.props.class),
+            slot: optional_string_attr!(cx.props.slot),
         }
     }
 }

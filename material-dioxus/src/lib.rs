@@ -20,6 +20,9 @@
 //!
 //! More information can be found on the [website](https://yew-material.web.app) and in the [GitHub README](https://github.com/hamza1311/yew-material)
 
+use dioxus::prelude::ScopeState;
+use rand::distributions::Alphanumeric;
+use rand::distributions::DistString;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 mod utils;
@@ -70,16 +73,20 @@ macro_rules! component {
 macro_rules! string_attr {
     ($value:expr) => {
         ::dioxus::core::AttributeValue::Text(&$value)
-    }; /* (? $value:expr) => {{
-        *     ::dioxus::core::AttributeValue::Text(&$value)
-        * }}; */
+    };
 }
 
 macro_rules! optional_string_attr {
     ($value:expr) => {
         $value
             .as_ref()
-            .map(|s| ::dioxus::core::AttributeValue::Text(s.as_str()))
+            .map(|s| {
+                if s.is_empty() {
+                    ::dioxus::core::AttributeValue::None
+                } else {
+                    ::dioxus::core::AttributeValue::Text(s.as_str())
+                }
+            })
             .unwrap_or(::dioxus::core::AttributeValue::None)
     };
 }
@@ -98,8 +105,29 @@ fn event_into_details(event: &web_sys::Event) -> JsValue {
         .unwrap_or_else(|_| panic!("could not convert to CustomEvent"))
         .detail()
 }
+
 fn event_details_into<T: JsCast>(event: &web_sys::Event) -> T {
     event_into_details(event).unchecked_into::<T>()
+}
+
+fn use_id<'a>(cx: &'a ScopeState, prefix: &str) -> &'a str {
+    cx.use_hook(|| {
+        let mut id = format!("{prefix}-");
+        Alphanumeric.append_string(&mut rand::thread_rng(), &mut id, 11);
+        // rerender the component immediately, so that code depending on the ID works on "the
+        // first render".
+        cx.needs_update();
+        id
+    })
+    .as_str()
+}
+
+fn get_elem_by_id(id: &str) -> Option<web_sys::Element> {
+    web_sys::window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .get_element_by_id(id)
 }
 
 #[cfg(feature = "button")]
@@ -197,7 +225,7 @@ pub mod list;
 #[cfg(feature = "list")]
 #[doc(no_inline)]
 #[doc(hidden)]
-pub use list::{MatCheckListItem, MatList, MatListItem, MatRadioListItem};
+pub use list::{MatCheckListItem, MatList, MatListItem, MatListSeparator, MatRadioListItem};
 
 #[cfg(feature = "icon-button-toggle")]
 pub mod icon_button_toggle;

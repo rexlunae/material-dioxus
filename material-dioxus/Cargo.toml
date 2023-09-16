@@ -48,13 +48,13 @@ radio = []
 switch = []
 # top-app-bar-fixed = []
 dialog = []
-# list = []
+list = []
 # icon-button-toggle = []
 # slider = []
 # tabs = []
 # snackbar = []
 textfield = []
-# textarea = []
+textarea = []
 # select = []
 # menu = []
 theming = ["palette"]
@@ -75,13 +75,13 @@ all-components = [
     "switch",
     # "top-app-bar-fixed",
     "dialog",
-    # "list",
+    "list",
     # "icon-button-toggle",
     # "slider",
     # "tabs",
     # "snackbar",
     "textfield",
-    # "textarea",
+    "textarea",
     # "select",
     # "menu",
 ]

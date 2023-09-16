@@ -8,5 +8,6 @@
 # Node stuff
 node_modules
 
-# Built site
+# Other
 **/dist/
+ignored/

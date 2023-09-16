@@ -54,20 +54,13 @@ impl PartialEq for ValidityTransform {
 }
 
 fn set_on_input_handler(
-    id: &str,
+    target: &web_sys::Element,
     callback: StaticCallback<String>,
     convert: impl Fn((Event, JsValue)) -> String + 'static,
-) -> Option<EventListener> {
-    web_sys::window()
-        .unwrap()
-        .document()
-        .unwrap()
-        .get_element_by_id(id)
-        .map(move |elem| {
-            EventListener::new(&elem, "input", move |event: &Event| {
-                let js_value = JsValue::from(event);
+) -> EventListener {
+    EventListener::new(target, "input", move |event: &Event| {
+        let js_value = JsValue::from(event);
 
-                callback.call(convert((event.clone(), js_value)))
-            })
-        })
+        callback.call(convert((event.clone(), js_value)))
+    })
 }

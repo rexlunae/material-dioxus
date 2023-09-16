@@ -26,15 +26,30 @@ pub struct FormfieldProps<'a> {
     pub space_between: bool,
     #[props(default)]
     pub nowrap: bool,
+
+    #[props(into, default)]
+    pub style: String,
+    #[props(into, default)]
+    pub class: String,
+    #[props(into)]
+    pub slot: Option<String>,
+    #[props(default)]
+    pub dialog_initial_focus: bool,
 }
 
 fn render<'a>(cx: Scope<'a, FormfieldProps<'a>>) -> Element<'a> {
     render! {
         mwc-formfield {
-            "label": optional_string_attr!(cx.props.label),
-            "alignEnd": bool_attr!(cx.props.align_end),
-            "spaceBetween": bool_attr!(cx.props.space_between),
-            "nowrap": bool_attr!(cx.props.nowrap),
+            label: optional_string_attr!(cx.props.label),
+            alignEnd: bool_attr!(cx.props.align_end),
+            spaceBetween: bool_attr!(cx.props.space_between),
+            nowrap: bool_attr!(cx.props.nowrap),
+
+            style: string_attr!(cx.props.style),
+            class: string_attr!(cx.props.class),
+            slot: optional_string_attr!(cx.props.slot),
+            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
+
             &cx.props.children
         }
     }

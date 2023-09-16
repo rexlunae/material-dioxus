@@ -1,5 +1,5 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve'
-import { terser } from 'rollup-plugin-terser'
+import terser from '@rollup/plugin-terser'
 
 const COMPONENTS = [
     'button',
@@ -36,7 +36,7 @@ export default {
     input: COMPONENTS.map(component => `@material/mwc-${component}`),
     plugins: [nodeResolve(), terser({ format: { comments: false } })],
     output: {
-        dir: `material-yew/build`,
+        dir: `material-dioxus/build`,
         chunkFileNames: '[name].js',
         manualChunks: (id, { getModuleInfo }) => {
             const info = getModuleInfo(id)

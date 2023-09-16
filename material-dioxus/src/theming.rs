@@ -79,7 +79,7 @@ fn overlay(base: Color, overlay: Color, alpha: f32) -> Color {
         .into_format()
 }
 
-fn contrast_text(bg: Color) -> Color {
+pub fn contrast_text(bg: Color) -> Color {
     let bg = Srgba::<f32>::from_format(bg);
     let light_contrast = bg.relative_contrast(Srgb::new(1., 1., 1.));
     let dark_contrast = bg.relative_contrast(Srgb::new(0., 0., 0.));
@@ -165,6 +165,13 @@ fn define_vars(colors: &Colors) -> String {
     let dialog_heading = ColorDisplay(surface_alpha(0.87));
     let dialog_content = ColorDisplay(surface_alpha(0.6));
     let dialog_divider = ColorDisplay(surface_alpha(0.12));
+
+    let textarea_idle_border = ColorDisplay(surface_alpha(0.38));
+    let textarea_hover_border = ColorDisplay(surface_alpha(0.87));
+    let textarea_disabled_border = ColorDisplay(surface_alpha(0.06));
+
+    let list_ripple = ColorDisplay(surface_alpha(1.));
+    let list_divider = ColorDisplay(surface_alpha(0.12));
 
     format!(
         "
@@ -254,10 +261,20 @@ fn define_vars(colors: &Colors) -> String {
     --mdc-dialog-heading-ink-color: {dialog_heading};
     --mdc-dialog-content-ink-color: {dialog_content};
     --mdc-dialog-scroll-divider-color: {dialog_divider};
+
+    --mdc-text-area-outlined-idle-border-color: {textarea_idle_border};
+    --mdc-text-area-outlined-hover-border-color: {textarea_hover_border};
+    --mdc-text-area-outlined-disabled-border-color: {textarea_disabled_border};
+
+    --mdc-deprecated-list-divider-color: {list_divider};
 }}
 
 mwc-switch {{
     --mdc-theme-primary: {switch_primary};
+}}
+
+mwc-list {{
+    --mdc-ripple-color: {list_ripple};
 }}
 "
     )

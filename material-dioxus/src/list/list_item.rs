@@ -1,10 +1,8 @@
-use crate::list::request_selected::request_selected_listener;
-use crate::list::{GraphicType, RequestSelectedDetail};
-use crate::{bool_to_option, to_option_string};
-use gloo::events::EventListener;
+use crate::{list::request_selected::make_request_selected_listener, StaticCallback};
+use dioxus::prelude::*;
 use wasm_bindgen::prelude::*;
-use yew::prelude::*;
-use yew::virtual_dom::AttrValue;
+
+use super::{GraphicType, RequestSelectedDetail};
 
 #[wasm_bindgen(module = "/build/mwc-list-item.js")]
 extern "C" {
@@ -13,91 +11,93 @@ extern "C" {
 
     #[wasm_bindgen(getter, static_method_of = ListItem)]
     fn _dummy_loader() -> JsValue;
+
+    #[wasm_bindgen(method, setter)]
+    fn set_activated(this: &ListItem, value: bool);
+
+    #[wasm_bindgen(method, setter)]
+    fn set_selected(this: &ListItem, value: bool);
 }
 
 loader_hack!(ListItem);
-
-/// The `mwc-list-item` Component
-///
-/// [MWC Documentation](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/list#mwc-list-item)
-pub struct MatListItem {
-    node_ref: NodeRef,
-    request_selected_listener: Option<EventListener>,
-}
 
 /// Props for [`MatListItem`]
 ///
 /// MWC Documentation [properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/list#mwc-list-item-1)
 /// and [events](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/list#mwc-list-item-2)
-#[derive(Debug, Properties, PartialEq, Clone)]
-pub struct ListItemProps {
-    #[prop_or_default]
-    pub value: Option<AttrValue>,
-    #[prop_or_default]
+#[derive(Props)]
+pub struct ListItemProps<'a> {
+    #[props(into)]
+    pub value: Option<String>,
+    #[props(default)]
     pub group: bool,
-    #[prop_or(- 1)]
+    #[props(default = -1)]
     pub tabindex: i32,
-    #[prop_or_default]
+    #[props(default)]
     pub disabled: bool,
-    #[prop_or_default]
+    #[props(default)]
     pub twoline: bool,
-    #[prop_or_default]
-    pub activated: bool,
-    #[prop_or(GraphicType::Null)]
+    #[props(default)]
+    pub initially_activated: bool,
+    #[props(default = GraphicType::Null)]
     pub graphic: GraphicType,
-    #[prop_or_default]
+    #[props(default)]
     pub multiple_graphics: bool,
-    #[prop_or_default]
+    #[props(default)]
     pub has_meta: bool,
-    #[prop_or_default]
+    #[props(default)]
     pub noninteractive: bool,
-    #[prop_or_default]
-    pub selected: bool,
+    #[props(default)]
+    pub initially_selected: bool,
     /// Binds to `request-selected` event on `mwc-list-item`.
-    #[prop_or_default]
-    pub on_request_selected: Callback<RequestSelectedDetail>,
-    pub children: Children,
+    #[props(into)]
+    pub _on_request_selected: Option<StaticCallback<RequestSelectedDetail>>,
+    pub children: Element<'a>,
+
+    #[props(into, default)]
+    pub style: String,
+    #[props(into, default)]
+    pub class: String,
 }
 
-impl Component for MatListItem {
-    type Message = ();
-    type Properties = ListItemProps;
-
-    fn create(_: &Context<Self>) -> Self {
-        ListItem::ensure_loaded();
-        Self {
-            node_ref: NodeRef::default(),
-            request_selected_listener: None,
+fn render<'a>(cx: Scope<'a, ListItemProps<'a>>) -> Element<'a> {
+    let id = crate::use_id(cx, "list-item");
+    let request_selected_listener = cx.use_hook(|| None);
+    if let Some(elem) = crate::get_elem_by_id(id) {
+        let target = elem;
+        if let Some(listener) = cx.props._on_request_selected.clone() {
+            *request_selected_listener = Some(make_request_selected_listener(&target, listener));
         }
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
-        let props = ctx.props();
-        html! {
-             <mwc-list-item
-                 value={props.value.clone()}
-                 group={bool_to_option(props.group)}
-                 tabindex={to_option_string(props.tabindex)}
-                 disabled={props.disabled}
-                 twoline={bool_to_option(props.twoline)}
-                 activated={bool_to_option(props.activated)}
-                 graphic={to_option_string(props.graphic.to_string())}
-                 multipleGraphics={bool_to_option(props.multiple_graphics)}
-                 hasMeta={bool_to_option(props.has_meta)}
-                 noninteractive={bool_to_option(props.noninteractive)}
-                 selected={props.selected}
-                 ref={self.node_ref.clone()}
-             >{props.children.clone()}</mwc-list-item>
-        }
-    }
+    render! {
+        mwc-list-item {
+            onmounted: move |_| {
+                if let Some(elem) = crate::get_elem_by_id(id) {
+                    let item = JsValue::from(elem).dyn_into::<ListItem>().unwrap();
+                    item.set_activated(cx.props.initially_activated);
+                    item.set_selected(cx.props.initially_selected);
+                }
+            },
 
-    fn rendered(&mut self, ctx: &Context<Self>, _first_render: bool) {
-        let props = ctx.props();
-        if self.request_selected_listener.is_none() {
-            self.request_selected_listener = Some(request_selected_listener(
-                &self.node_ref,
-                props.on_request_selected.clone(),
-            ));
+            id: id,
+
+            value: optional_string_attr!(cx.props.value),
+            group: bool_attr!(cx.props.group),
+            tabindex: cx.props.tabindex as i64,
+            disabled: bool_attr!(cx.props.disabled),
+            twoline: bool_attr!(cx.props.twoline),
+            graphic: cx.props.graphic.as_str(),
+            multipleGraphics: bool_attr!(cx.props.multiple_graphics),
+            hasMeta: bool_attr!(cx.props.has_meta),
+            noninteractive: bool_attr!(cx.props.noninteractive),
+
+            style: string_attr!(cx.props.style),
+            class: string_attr!(cx.props.class),
+
+            &cx.props.children
         }
     }
 }
+
+component!('a, MatListItem, ListItemProps, render, ListItem, "list-item");

@@ -28,18 +28,16 @@ impl Component for MatDrawerSubtitle {
         let children = props
             .children
             .iter()
-            .map(|child| {
-                match child {
-                    Html::VTag(mut vtag) => {
-                        vtag.add_attribute("slot", "subtitle");
-                        Html::VTag(vtag)
-                    }
-                    _ => {
-                        html! {
-                             <span slot={SLOT}>
-                                 {child}
-                             </span>
-                        }
+            .map(|child| match child {
+                Html::VTag(mut vtag) => {
+                    vtag.add_attribute("slot", "subtitle");
+                    Html::VTag(vtag)
+                }
+                _ => {
+                    html! {
+                         <span slot={SLOT}>
+                             {child}
+                         </span>
                     }
                 }
             })

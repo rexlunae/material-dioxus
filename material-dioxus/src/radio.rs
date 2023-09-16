@@ -2,7 +2,6 @@ use std::marker::PhantomData;
 
 use dioxus::prelude::*;
 use gloo::events::EventListener;
-use rand::distributions::{Alphanumeric, DistString};
 use wasm_bindgen::prelude::*;
 use web_sys::Node;
 
@@ -56,26 +55,21 @@ pub struct RadioProps<'a> {
     // and thus cannot be used here
     pub _onchange: Option<StaticCallback<bool>>,
     _lifetime: Option<PhantomData<&'a ()>>,
+
+    #[props(into, default)]
+    pub style: String,
+    #[props(into, default)]
+    pub class: String,
+    #[props(into)]
+    pub slot: Option<String>,
+    #[props(default)]
+    pub dialog_initial_focus: bool,
 }
 
 fn render<'a>(cx: Scope<'a, RadioProps<'a>>) -> Element<'a> {
-    // TODO: dedup with checkbox (and others)?
-    let id = cx
-        .use_hook(|| {
-            let mut id = String::from("radio-");
-            Alphanumeric.append_string(&mut rand::thread_rng(), &mut id, 11);
-            // make sure an initial value of `checked = true` is properly set
-            cx.needs_update();
-            id
-        })
-        .as_str();
+    let id = crate::use_id(cx, "radio");
     let change_listener = cx.use_hook(|| None);
-    if let Some(elem) = web_sys::window()
-        .unwrap()
-        .document()
-        .unwrap()
-        .get_element_by_id(id)
-    {
+    if let Some(elem) = crate::get_elem_by_id(id) {
         let target = elem.clone();
         let radio = JsValue::from(elem).dyn_into::<Radio>().unwrap();
         radio.set_checked(cx.props.checked);
@@ -88,11 +82,17 @@ fn render<'a>(cx: Scope<'a, RadioProps<'a>>) -> Element<'a> {
     render! {
         mwc-radio {
             id: id,
-            "disabled": bool_attr!(cx.props.disabled),
-            "name": optional_string_attr!(cx.props.name),
-            "value": optional_string_attr!(cx.props.value),
-            "global": bool_attr!(cx.props.global),
-            "reducedTouchTarget": bool_attr!(cx.props.reduced_touch_target),
+
+            disabled: bool_attr!(cx.props.disabled),
+            name: optional_string_attr!(cx.props.name),
+            value: optional_string_attr!(cx.props.value),
+            global: bool_attr!(cx.props.global),
+            reducedTouchTarget: bool_attr!(cx.props.reduced_touch_target),
+
+            style: string_attr!(cx.props.style),
+            class: string_attr!(cx.props.class),
+            slot: optional_string_attr!(cx.props.slot),
+            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
         }
     }
 }

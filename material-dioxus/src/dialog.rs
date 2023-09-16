@@ -4,7 +4,6 @@ pub use dialog_action::*;
 
 use dioxus::prelude::*;
 use gloo::events::EventListener;
-use rand::distributions::{Alphanumeric, DistString};
 use wasm_bindgen::prelude::*;
 use web_sys::Node;
 
@@ -108,28 +107,20 @@ pub struct DialogProps<'a> {
     // #[props(default)]
     // pub dialog_link: WeakComponentLink<MatDialog>,
     pub children: Element<'a>,
+
+    #[props(into, default)]
+    pub style: String,
+    #[props(into, default)]
+    pub class: String,
 }
 
 fn render<'a>(cx: Scope<'a, DialogProps<'a>>) -> Element<'a> {
-    let id = cx
-        .use_hook(|| {
-            let mut id = String::from("dialog-");
-            Alphanumeric.append_string(&mut rand::thread_rng(), &mut id, 11);
-            // make sure all initial values are properly set
-            cx.needs_update();
-            id
-        })
-        .as_str();
+    let id = crate::use_id(cx, "dialog");
     let opening_listener = cx.use_hook(|| None);
     let opened_listener = cx.use_hook(|| None);
     let closing_listener = cx.use_hook(|| None);
     let closed_listener = cx.use_hook(|| None);
-    if let Some(elem) = web_sys::window()
-        .unwrap()
-        .document()
-        .unwrap()
-        .get_element_by_id(id)
-    {
+    if let Some(elem) = crate::get_elem_by_id(id) {
         let target = elem;
         if let Some(listener) = cx.props._onopening.clone() {
             *opening_listener = Some(EventListener::new(&target, "opening", move |_| {
@@ -155,15 +146,20 @@ fn render<'a>(cx: Scope<'a, DialogProps<'a>>) -> Element<'a> {
     render! {
         mwc-dialog {
             id: id,
-            "open": bool_attr!(cx.props.open),
-            "hideActions": bool_attr!(cx.props.hide_actions),
-            "stacked": bool_attr!(cx.props.stacked),
-            "heading": optional_string_attr!(cx.props.heading),
-            "scrimClickAction": optional_string_attr!(cx.props.scrim_click_action),
-            "escapeKeyAction": optional_string_attr!(cx.props.escape_key_action),
-            "defaultAction": optional_string_attr!(cx.props.default_action),
-            "actionAttribute": optional_string_attr!(cx.props.action_attribute),
-            "initialFocusAttribute": optional_string_attr!(cx.props.initial_focus_attribute),
+
+            open: bool_attr!(cx.props.open),
+            hideActions: bool_attr!(cx.props.hide_actions),
+            stacked: bool_attr!(cx.props.stacked),
+            heading: optional_string_attr!(cx.props.heading),
+            scrimClickAction: optional_string_attr!(cx.props.scrim_click_action),
+            escapeKeyAction: optional_string_attr!(cx.props.escape_key_action),
+            defaultAction: optional_string_attr!(cx.props.default_action),
+            actionAttribute: optional_string_attr!(cx.props.action_attribute),
+            initialFocusAttribute: optional_string_attr!(cx.props.initial_focus_attribute),
+
+            style: "position: absolute; {cx.props.style}",
+            class: string_attr!(cx.props.class),
+
             &cx.props.children
         }
     }
