@@ -36,7 +36,7 @@ export default {
     input: COMPONENTS.map(component => `@material/mwc-${component}`),
     plugins: [nodeResolve(), terser({ format: { comments: false } })],
     output: {
-        dir: `material-dioxus/build`,
+        dir: `build`,
         chunkFileNames: '[name].js',
         manualChunks: (id, { getModuleInfo }) => {
             const info = getModuleInfo(id)

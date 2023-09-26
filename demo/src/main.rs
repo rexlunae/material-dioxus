@@ -101,7 +101,7 @@ html {{
                 char_counter: TextAreaCharCounter::External,
             }
             MatTextArea {
-                label: "Persistant helper",
+                label: "Persistent helper",
                 helper: "I am helping",
                 helper_persistent: true,
                 placeholder: "placeholder",
@@ -234,7 +234,7 @@ html {{
                 char_counter: true,
             }
             MatTextField {
-                label: "Persistant helper",
+                label: "Persistent helper",
                 helper: "I am helping",
                 helper_persistent: true,
                 placeholder: "placeholder",

@@ -1,24 +1,7 @@
-#![doc(html_root_url = "/docs")]
 // See: https://github.com/rustwasm/wasm-bindgen/issues/2774
 // Can remove when wasm-bindgen is updated.
 #![allow(clippy::unused_unit)]
-//! A Material components library for [Yew](https://yew.rs). It wrpas around [Material Web Components](https://github.com/material-components/material-web) exposing Yew components.
-//!
-//! Example usage:
-//! ```rust
-//! use material_yew::MatButton;
-//! use yew::html;
-//!
-//! html! {
-//!     <MatButton label="Click me!" />
-//! };
-//! ```
-//!
-//! All the main components from the modules are re-exported.
-//! The specialized components used for populating slots and models can be
-//! accessed from their respective modules.
-//!
-//! More information can be found on the [website](https://yew-material.web.app) and in the [GitHub README](https://github.com/hamza1311/yew-material)
+#![doc = include_str!("../README.md")]
 
 use dioxus::prelude::ScopeState;
 use rand::distributions::Alphanumeric;
@@ -28,6 +11,7 @@ use wasm_bindgen::JsValue;
 mod utils;
 
 // this macro is defined here so we can access it in the modules
+#[allow(unused)]
 macro_rules! loader_hack {
     ($ty:ty) => {
         #[allow(dead_code)]
@@ -43,6 +27,7 @@ macro_rules! loader_hack {
     };
 }
 
+#[allow(unused)]
 macro_rules! component {
     ($comp: ident, $props: ty, $html: expr, $mwc_to_initialize: ident, $mwc_name: literal) => {
         paste::paste! {
@@ -70,12 +55,14 @@ macro_rules! component {
    };
 }
 
+#[allow(unused)]
 macro_rules! string_attr {
     ($value:expr) => {
         ::dioxus::core::AttributeValue::Text(&$value)
     };
 }
 
+#[allow(unused)]
 macro_rules! optional_string_attr {
     ($value:expr) => {
         $value
@@ -91,6 +78,7 @@ macro_rules! optional_string_attr {
     };
 }
 
+#[allow(unused)]
 macro_rules! bool_attr {
     ($value:expr) => {
         $value
@@ -99,6 +87,7 @@ macro_rules! bool_attr {
     };
 }
 
+#[allow(unused)]
 fn event_into_details(event: &web_sys::Event) -> JsValue {
     JsValue::from(event)
         .dyn_into::<web_sys::CustomEvent>()
@@ -106,10 +95,12 @@ fn event_into_details(event: &web_sys::Event) -> JsValue {
         .detail()
 }
 
+#[allow(unused)]
 fn event_details_into<T: JsCast>(event: &web_sys::Event) -> T {
     event_into_details(event).unchecked_into::<T>()
 }
 
+#[allow(unused)]
 fn use_id<'a>(cx: &'a ScopeState, prefix: &str) -> &'a str {
     cx.use_hook(|| {
         let mut id = format!("{prefix}-");
@@ -122,6 +113,7 @@ fn use_id<'a>(cx: &'a ScopeState, prefix: &str) -> &'a str {
     .as_str()
 }
 
+#[allow(unused)]
 fn get_elem_by_id(id: &str) -> Option<web_sys::Element> {
     web_sys::window()
         .unwrap()

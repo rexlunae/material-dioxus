@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-let core_js = fs.readFileSync('./material-dioxus/build/core.js').toString()
+let core_js = fs.readFileSync('./build/core.js').toString()
 
 // customization of textfield icon color
 core_js = core_js.replace(
@@ -32,9 +32,9 @@ core_js = core_js.replace(
     '$1var(--mdc-text-field-label-ink-color, $2)$3',
 )
 
-fs.writeFileSync('./material-dioxus/build/core.js', core_js)
+fs.writeFileSync('./build/core.js', core_js)
 
-let list_js = fs.readFileSync('./material-dioxus/build/mwc-list.js').toString()
+let list_js = fs.readFileSync('./build/mwc-list.js').toString()
 
 // customization of list divider color
 list_js = list_js.replace(
@@ -42,4 +42,4 @@ list_js = list_js.replace(
     '$1var(--mdc-deprecated-list-divider-color, $2)$3',
 )
 
-fs.writeFileSync('./material-dioxus/build/mwc-list.js', list_js)
+fs.writeFileSync('./build/mwc-list.js', list_js)
