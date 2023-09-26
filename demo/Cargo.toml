@@ -10,4 +10,4 @@ dioxus = "0.4.0"
 dioxus-web = "0.4.0"
 gloo-console = "0.3.0"
 
-material-dioxus = { version = "0.0.2-dev", path = "../", features = ["full"] }
+material-dioxus = { version = "0.0.3-dev", path = "../", features = ["full"] }

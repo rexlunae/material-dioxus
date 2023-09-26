@@ -7,7 +7,7 @@ members = [
 
 [package]
 name = "material-dioxus"
-version = "0.0.2-dev"
+version = "0.0.3-dev"
 authors = ["RubixDev <silas.groh@t-online.de>", "Hamza <muhammadhamza1311@gmail.com>"]
 categories = ["web-programming", "wasm", "api-bindings", "gui"]
 edition = "2021"
