@@ -11,6 +11,6 @@ gloo-console = "0.3.0"
 dioxus-web = "0.4.0"
 
 [dependencies.material-dioxus]
-version = "0.0.1-dev"
+version = "0.0.2-dev"
 path = "../material-dioxus/"
 features = ["full"]
