@@ -23,8 +23,8 @@ loader_hack!(Switch);
 ///
 /// - [Properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/switch#propertiesattributes)
 /// - [Events](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/switch#events)
-#[derive(Props)]
-pub struct SwitchProps<'a> {
+#[derive(Clone, Props, PartialEq)]
+pub struct SwitchProps {
     #[props(default)]
     pub selected: bool,
     #[props(default)]
@@ -36,8 +36,7 @@ pub struct SwitchProps<'a> {
     #[props(into)]
     // the name cannot start with `on` or dioxus will expect an `EventHandler` which aren't static
     // and thus cannot be used here
-    pub _onclick: Option<StaticCallback<()>>,
-    _lifetime: Option<PhantomData<&'a ()>>,
+    _lifetime: Option<PhantomData<()>>,
 
     #[props(into, default)]
     pub style: String,
@@ -49,33 +48,26 @@ pub struct SwitchProps<'a> {
     pub dialog_initial_focus: bool,
 }
 
-fn render<'a>(cx: Scope<'a, SwitchProps<'a>>) -> Element<'a> {
-    let id = crate::use_id(cx, "switch");
-    let click_listener = cx.use_hook(|| None);
-    if let Some(elem) = crate::get_elem_by_id(id) {
-        let target = elem;
-        if let Some(listener) = cx.props._onclick.clone() {
-            *click_listener = Some(EventListener::new(&target, "click", move |_| {
-                listener.call(())
-            }));
-        }
+#[component]
+pub fn MatSwitch(props: SwitchProps) -> Element {
+    let id = crate::use_id("switch");
+    if let Some(elem) = crate::get_elem_by_id(&id) {
+        let _target = elem;
     }
 
-    render! {
+    rsx! {
         mwc-switch {
             id: id,
 
-            selected: bool_attr!(cx.props.selected),
-            disabled: bool_attr!(cx.props.disabled),
-            name: optional_string_attr!(cx.props.name),
-            value: optional_string_attr!(cx.props.value),
+            selected: props.selected,
+            disabled: props.disabled,
+            name: props.name,
+            value: props.value,
 
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-            slot: optional_string_attr!(cx.props.slot),
-            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
+            style: props.style,
+            class: props.class,
+            slot: props.slot,
+            dialogInitialFocus: props.dialog_initial_focus,
         }
     }
 }
-
-component!('a, MatSwitch, SwitchProps, render, Switch, "switch");

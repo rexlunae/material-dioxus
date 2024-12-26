@@ -15,28 +15,27 @@ loader_hack!(Icon);
 /// Props for [`MatIcon`]
 ///
 /// [MWC Documentation for properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/icon#propertiesattributes)
-#[derive(Props)]
-pub struct IconProps<'a> {
-    pub children: Element<'a>,
-
+#[derive(Clone, Props, PartialEq)]
+pub struct IconProps {
     #[props(into, default)]
     pub style: String,
     #[props(into, default)]
     pub class: String,
     #[props(into)]
     pub slot: Option<String>,
+    pub children: Element,
 }
 
-fn render<'a>(cx: Scope<'a, IconProps<'a>>) -> Element<'a> {
-    render! {
+#[component]
+pub fn MatIcon(props: IconProps) -> Element {
+    rsx! {
         mwc-icon {
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-            slot: optional_string_attr!(cx.props.slot),
-
-            &cx.props.children
+            style: props.style,
+            class: props.class,
+            slot: props.slot,
+            {props.children}
         }
     }
 }
 
-component!('a, MatIcon, IconProps, render, Icon, "icon");
+//component!('a, MatIcon, IconProps, render, Icon, "icon");

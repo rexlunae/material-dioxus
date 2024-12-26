@@ -55,8 +55,8 @@ loader_hack!(Dialog);
 ///
 /// - [Properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/dialog#propertiesattributes)
 /// - [Events](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/dialog#events)
-#[derive(Props)]
-pub struct DialogProps<'a> {
+#[derive(Clone, Props, PartialEq)]
+pub struct DialogProps {
     #[props(default)]
     pub open: bool,
     #[props(default)]
@@ -78,23 +78,23 @@ pub struct DialogProps<'a> {
     /// Binds to `opening` event on `mwc-dialog`
     ///
     /// See events docs to learn more.
-    #[props(into)]
-    pub _onopening: Option<StaticCallback<()>>,
+    //#[props(into)]
+    //pub _onopening: Option<StaticCallback<()>>,
     /// Binds to `opened` event on `mwc-dialog`
     ///
     /// See events docs to learn more.
-    #[props(into)]
-    pub _onopened: Option<StaticCallback<()>>,
+    //#[props(into)]
+    //pub _onopened: Option<StaticCallback<()>>,
     /// Binds to `closing` event on `mwc-dialog`
     ///
     /// See events docs to learn more.
-    #[props(into)]
-    pub _onclosing: Option<StaticCallback<String>>,
+    //#[props(into)]
+    //pub _onclosing: Option<StaticCallback<String>>,
     /// Binds to `closed` event on `mwc-dialog`
     ///
     /// See events docs to learn more.
-    #[props(into)]
-    pub _onclosed: Option<StaticCallback<String>>,
+    //#[props(into)]
+    //pub _onclosed: Option<StaticCallback<String>>,
     // TODO: make methods callable
     // /// [`WeakComponentLink`] for `MatDialog` which provides the following
     // /// methods:
@@ -104,68 +104,67 @@ pub struct DialogProps<'a> {
     // /// - ```close(&self)```
     // ///
     // /// See [`WeakComponentLink`] documentation for more information
-    // #[props(default)]
-    // pub dialog_link: WeakComponentLink<MatDialog>,
-    pub children: Element<'a>,
 
     #[props(into, default)]
     pub style: String,
     #[props(into, default)]
     pub class: String,
+    pub children: Element,
 }
 
-fn render<'a>(cx: Scope<'a, DialogProps<'a>>) -> Element<'a> {
-    let id = crate::use_id(cx, "dialog");
-    let opening_listener = cx.use_hook(|| None);
-    let opened_listener = cx.use_hook(|| None);
-    let closing_listener = cx.use_hook(|| None);
-    let closed_listener = cx.use_hook(|| None);
-    if let Some(elem) = crate::get_elem_by_id(id) {
+#[component]
+pub fn MatDialog(props: DialogProps) -> Element {
+    let id = crate::use_id("dialog");
+    //let opening_listener = use_hook(|| None);
+    //let opened_listener = use_hook(|| None);
+    //let closing_listener = use_hook(|| None);
+    //let closed_listener = use_hook(|| None);
+    if let Some(elem) = crate::get_elem_by_id(&id) {
         let target = elem;
-        if let Some(listener) = cx.props._onopening.clone() {
+        /*
+        if let Some(listener) = props._onopening.clone() {
             *opening_listener = Some(EventListener::new(&target, "opening", move |_| {
                 listener.call(())
             }));
         }
-        if let Some(listener) = cx.props._onopened.clone() {
+        if let Some(listener) = props._onopened.clone() {
             *opened_listener = Some(EventListener::new(&target, "opened", move |_| {
                 listener.call(())
             }));
         }
-        if let Some(listener) = cx.props._onclosing.clone() {
+        if let Some(listener) = props._onclosing.clone() {
             *closing_listener = Some(EventListener::new(&target, "closing", move |event| {
                 listener.call(action_from_event(event))
             }));
         }
-        if let Some(listener) = cx.props._onclosed.clone() {
+        if let Some(listener) = props._onclosed.clone() {
             *closed_listener = Some(EventListener::new(&target, "closed", move |event| {
                 listener.call(action_from_event(event))
             }));
-        }
+        }*/
     }
-    render! {
+    rsx! {
         mwc-dialog {
             id: id,
 
-            open: bool_attr!(cx.props.open),
-            hideActions: bool_attr!(cx.props.hide_actions),
-            stacked: bool_attr!(cx.props.stacked),
-            heading: optional_string_attr!(cx.props.heading),
-            scrimClickAction: optional_string_attr!(cx.props.scrim_click_action),
-            escapeKeyAction: optional_string_attr!(cx.props.escape_key_action),
-            defaultAction: optional_string_attr!(cx.props.default_action),
-            actionAttribute: optional_string_attr!(cx.props.action_attribute),
-            initialFocusAttribute: optional_string_attr!(cx.props.initial_focus_attribute),
+            open: props.open,
+            hideActions: props.hide_actions,
+            stacked: props.stacked,
+            heading: props.heading,
+            scrimClickAction: props.scrim_click_action,
+            escapeKeyAction: props.escape_key_action,
+            defaultAction: props.default_action,
+            actionAttribute: props.action_attribute,
+            initialFocusAttribute: props.initial_focus_attribute,
 
-            style: "position: absolute; {cx.props.style}",
-            class: string_attr!(cx.props.class),
-
-            &cx.props.children
+            style: "position: absolute; {props.style}",
+            class: props.class,
+            {props.children}
         }
     }
 }
 
-component!('a, MatDialog, DialogProps, render, Dialog, "dialog");
+//component!('a, MatDialog, DialogProps, render, Dialog, "dialog");
 
 #[wasm_bindgen]
 extern "C" {

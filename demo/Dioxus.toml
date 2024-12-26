@@ -1,15 +1,9 @@
 [application]
 name = "mdc-web-test"
-default_platform = "web"
-out_dir = "dist"
-asset_dir = "public"
+#asset_dir = "public"
 
 [web.app]
 title = "Material Dioxus"
-
-[web.watcher]
-index_on_404 = true
-watch_path = ["src"]
 
 [web.resource]
 style = [

@@ -1,10 +1,6 @@
 use std::fmt;
-use std::marker::PhantomData;
 
-use crate::text_inputs::set_on_input_handler;
 use crate::text_inputs::validity_state::ValidityStateJS;
-use crate::StaticCallback;
-use dioxus::core::AttributeValue;
 use dioxus::prelude::*;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -72,8 +68,8 @@ impl fmt::Display for TextAreaCharCounter {
 ///
 /// - [Properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/checkbox#propertiesattributes)
 // TODO: why do the props icon, iconTrailing, field_type and so on exist?
-#[derive(Props)]
-pub struct TextAreaProps<'a> {
+#[derive(Clone, Props, PartialEq)]
+pub struct TextAreaProps {
     #[props(default)]
     pub rows: Option<i64>,
     #[props(default)]
@@ -125,11 +121,11 @@ pub struct TextAreaProps<'a> {
     pub validity_transform: Option<ValidityTransform>,
     #[props(default)]
     pub validate_on_initial_render: bool,
-    #[props(into)]
+    //#[props(into)]
     // the name cannot start with `on` or dioxus will expect an `EventHandler` which aren't static
     // and thus cannot be used here
-    pub _oninput: Option<StaticCallback<String>>,
-    _lifetime: Option<PhantomData<&'a ()>>,
+    //pub _oninput: Option<StaticCallback<String>>,
+    //_lifetime: Option<PhantomData<&'a ()>>,
     #[props(default)]
     pub name: Option<String>,
 
@@ -143,31 +139,32 @@ pub struct TextAreaProps<'a> {
     pub dialog_initial_focus: bool,
 }
 
-fn render<'a>(cx: Scope<'a, TextAreaProps<'a>>) -> Element<'a> {
-    let id = crate::use_id(cx, "textarea");
-    let input_listener = cx.use_hook(|| None);
-    let validity_transform_closure = cx.use_hook(|| None);
-    if let Some(elem) = crate::get_elem_by_id(id) {
+#[component]
+pub fn MatTextArea(props: TextAreaProps) -> Element {
+    let id = crate::use_id("textarea");
+    //let input_listener = use_hook(|| None);
+    //let validity_transform_closure = use_hook(|| None);
+    if let Some(elem) = crate::get_elem_by_id(&id) {
         let target = elem.clone();
         let textarea = JsValue::from(elem).dyn_into::<TextArea>().unwrap();
-        textarea.set_type(&JsValue::from(cx.props.field_type.as_str()));
+        textarea.set_type(&JsValue::from(props.field_type.as_str()));
         textarea.set_value(&JsValue::from_str(
-            cx.props
+            props
                 .value
                 .as_ref()
                 .map(|s| s.as_ref())
                 .unwrap_or_default(),
         ));
-        if let Some(listener) = cx.props._oninput.clone() {
+        /*if let Some(listener) = props._oninput.clone() {
             *input_listener = Some(set_on_input_handler(&target, listener, |(_, detail)| {
                 detail
                     .unchecked_into::<MatTextAreaInputEvent>()
                     .target()
                     .value()
             }));
-        }
-        if let (Some(transform), None) = (
-            cx.props.validity_transform.clone(),
+        }*/
+        /*if let (Some(transform), None) = (
+            props.validity_transform.clone(),
             &validity_transform_closure,
         ) {
             *validity_transform_closure = Some(Closure::wrap(Box::new(
@@ -177,44 +174,44 @@ fn render<'a>(cx: Scope<'a, TextAreaProps<'a>>) -> Element<'a> {
             )
                 as Box<dyn Fn(String, NativeValidityState) -> ValidityStateJS>));
             textarea.set_validity_transform(validity_transform_closure.as_ref().unwrap());
-        }
+        }*/
     }
 
-    render! {
+    rsx! {
         mwc-textarea {
             id: id,
 
-            rows: cx.props.rows.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            cols: cx.props.cols.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            label: optional_string_attr!(cx.props.label),
-            placeholder: optional_string_attr!(cx.props.placeholder),
-            icon: optional_string_attr!(cx.props.icon),
-            iconTrailing: optional_string_attr!(cx.props.icon_trailing),
-            disabled: bool_attr!(cx.props.disabled),
-            charCounter: cx.props.char_counter.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            outlined: bool_attr!(cx.props.outlined),
-            helper: optional_string_attr!(cx.props.helper),
-            helperPersistent: bool_attr!(cx.props.helper_persistent),
-            required: bool_attr!(cx.props.required),
-            maxLength: cx.props.max_length.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            validationMessage: optional_string_attr!(cx.props.validation_message),
-            min: optional_string_attr!(cx.props.min),
-            max: optional_string_attr!(cx.props.max),
-            size: cx.props.size.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            step: cx.props.step.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            autoValidate: bool_attr!(cx.props.auto_validate),
-            validateOnInitialRender: bool_attr!(cx.props.validate_on_initial_render),
-            name: optional_string_attr!(cx.props.name),
+            //rows: props.rows.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap(),
+            //cols: props.cols.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            label: props.label,
+            placeholder: props.placeholder,
+            icon: props.icon,
+            iconTrailing: props.icon_trailing,
+            disabled: props.disabled,
+            //charCounter: props.char_counter.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            outlined: props.outlined,
+            helper: props.helper,
+            helperPersistent: props.helper_persistent,
+            required: props.required,
+            //maxLength: props.max_length.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            validationMessage: props.validation_message,
+            min: props.min,
+            max: props.max,
+            //size: props.size.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            //step: props.step.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            autoValidate: props.auto_validate,
+            validateOnInitialRender: props.validate_on_initial_render,
+            name: props.name,
 
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-            slot: optional_string_attr!(cx.props.slot),
-            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
+            style: props.style,
+            class: props.class,
+            slot: props.slot,
+            dialogInitialFocus: props.dialog_initial_focus,
         }
     }
 }
 
-component!('a, MatTextArea, TextAreaProps, render, TextArea, "textarea");
+//component!('a, MatTextArea, TextAreaProps, render, TextArea, "textarea");
 
 #[wasm_bindgen]
 extern "C" {

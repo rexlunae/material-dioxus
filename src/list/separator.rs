@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 /// Docs [here](https://github.com/material-components/material-web/tree/mwc/packages/list#dividers).
-#[derive(Props, PartialEq)]
+#[derive(Clone, Props, PartialEq)]
 pub struct ListSeparatorProps {
     #[props(default)]
     pub padded: bool,
@@ -9,14 +9,14 @@ pub struct ListSeparatorProps {
     pub inset: bool,
 }
 
-#[allow(non_snake_case)]
-pub fn MatListSeparator(cx: Scope<ListSeparatorProps>) -> Element {
-    render! {
+#[component]
+pub fn MatListSeparator(props: ListSeparatorProps) -> Element {
+    rsx! {
         li {
             "divider": true,
             role: "separator",
-            "padded": bool_attr!(cx.props.padded),
-            "inset": bool_attr!(cx.props.inset),
+            "padded": props.padded,
+            "inset": props.inset,
         }
     }
 }

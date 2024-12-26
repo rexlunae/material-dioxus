@@ -26,25 +26,25 @@ impl fmt::Display for ActionType {
 }
 
 /// Props for [`MatDialogAction`]
-#[derive(Props)]
-pub struct ActionProps<'a> {
+#[derive(Clone, Props, PartialEq)]
+pub struct ActionProps {
     pub action_type: ActionType,
     #[props(into)]
     pub action: Option<String>,
-    pub children: Element<'a>,
+    pub children: Element,
 }
 
 /// Defines actions for [`MatDialog`][crate::MatDialog].
 ///
 /// The passed children are wrapped in a `span` with the required attributes
 /// set.
-#[allow(non_snake_case)]
-pub fn MatDialogAction<'a>(cx: Scope<'a, ActionProps<'a>>) -> Element<'a> {
-    render! {
+#[component]
+pub fn MatDialogAction(props: ActionProps) -> Element {
+    rsx! {
         span {
-            slot: "{cx.props.action_type}",
-            "dialogAction": optional_string_attr!(cx.props.action),
-            &cx.props.children
+            slot: "{props.action_type}",
+            direction: props.action,
+            {props.children}
         }
     }
 }

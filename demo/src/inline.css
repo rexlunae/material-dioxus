@@ -1,0 +1,22 @@
+.demo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border: 1px solid currentColor;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+body {
+    background-color: var(--mdc-theme-background);
+}
+
+html {
+    color-scheme: light dark;
+}
+
+.list-demo {
+    padding: 1rem;
+    border: 1px dotted currentColor;
+    min-width: 15rem;
+}

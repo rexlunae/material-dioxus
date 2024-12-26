@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 
 use crate::palette::{self, Color};
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Colors {
     pub primary: Color,
     pub secondary: Option<Color>,
@@ -56,7 +56,7 @@ impl Colors {
     };
 }
 
-#[derive(Props, PartialEq)]
+#[derive(Clone, Props, PartialEq)]
 pub struct ThemeProps {
     #[props(default = Colors::DEFAULT_LIGHT)]
     theme: Colors,
@@ -280,10 +280,10 @@ mwc-list {{
     )
 }
 
-#[allow(non_snake_case)]
-pub fn MatTheme(cx: Scope<ThemeProps>) -> Element {
-    let light_theme = define_vars(&cx.props.theme);
-    let dark_theme = if let Some(colors) = &cx.props.dark_theme {
+#[component]
+pub fn MatTheme(props: ThemeProps) -> Element {
+    let light_theme = define_vars(&props.theme);
+    let dark_theme = if let Some(colors) = &props.dark_theme {
         format!(
             "@media screen and (prefers-color-scheme: dark) {{{}}}",
             define_vars(colors)
@@ -292,7 +292,7 @@ pub fn MatTheme(cx: Scope<ThemeProps>) -> Element {
         String::new()
     };
 
-    render! {
+    rsx! {
         style { dangerous_inner_html: "{light_theme}{dark_theme}" }
     }
 }

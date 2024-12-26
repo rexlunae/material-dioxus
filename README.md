@@ -104,9 +104,9 @@ use material_dioxus::MatButton;
 
 #[allow(non_snake_case)]
 fn Counter(cx: Scope) -> Element {
-    let mut counter = use_state(cx, || 0);
+    let mut counter = use_signal(|| 0);
 
-    render! {
+    rsx! {
         // option 1: wrap the component in a span and use normal event handling
         span {
             onclick: move |_| counter += 1,

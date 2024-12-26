@@ -31,8 +31,8 @@ loader_hack!(Checkbox);
 ///
 /// - [Properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/checkbox#propertiesattributes)
 /// - [Events](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/checkbox#events)
-#[derive(Props)]
-pub struct CheckboxProps<'a> {
+#[derive(Clone, Props, PartialEq)]
+pub struct CheckboxProps {
     #[props(default)]
     pub checked: bool,
     #[props(default)]
@@ -43,14 +43,6 @@ pub struct CheckboxProps<'a> {
     pub value: Option<String>,
     #[props(default)]
     pub reduced_touch_target: bool,
-    /// Binds to `change` event on `mwc-checkbox`
-    ///
-    /// See events docs to learn more.
-    #[props(into)]
-    // the name cannot start with `on` or dioxus will expect an `EventHandler` which aren't static
-    // and thus cannot be used here
-    pub _onchange: Option<StaticCallback<bool>>,
-    _lifetime: Option<PhantomData<&'a ()>>,
 
     #[props(into, default)]
     pub style: String,
@@ -62,34 +54,36 @@ pub struct CheckboxProps<'a> {
     pub dialog_initial_focus: bool,
 }
 
-fn render<'a>(cx: Scope<'a, CheckboxProps<'a>>) -> Element<'a> {
-    let id = crate::use_id(cx, "checkbox");
-    let change_listener = cx.use_hook(|| None);
-    if let Some(elem) = crate::get_elem_by_id(id) {
+#[component]
+pub fn MatCheckbox(props: CheckboxProps) -> Element {
+    let id = crate::use_id("checkbox");
+    //let change_listener = use_hook(|| None);
+    if let Some(elem) = crate::get_elem_by_id(&id) {
         let target = elem.clone();
         let cb = JsValue::from(elem).dyn_into::<Checkbox>().unwrap();
-        cb.set_checked(cx.props.checked);
-        if let Some(listener) = cx.props._onchange.clone() {
+        cb.set_checked(props.checked);
+        /*
+        if let Some(listener) = props._onchange.clone() {
             *change_listener = Some(EventListener::new(&target, "change", move |_| {
                 listener.call(cb.checked())
             }));
-        }
+        }*/
     }
-    render! {
+    rsx! {
         mwc-checkbox {
             id: id,
 
-            indeterminate: bool_attr!(cx.props.indeterminate),
-            disabled: cx.props.disabled,
-            value: optional_string_attr!(cx.props.value),
-            reducedTouchTarget: bool_attr!(cx.props.reduced_touch_target),
+            indeterminate: props.indeterminate,
+            disabled: props.disabled,
+            value: props.value,
+            reducedTouchTarget: props.reduced_touch_target,
 
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-            slot: optional_string_attr!(cx.props.slot),
-            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
+            style: props.style,
+            class: props.class,
+            slot: props.slot,
+            dialogInitialFocus: props.dialog_initial_focus,
         }
     }
 }
 
-component!('a, MatCheckbox, CheckboxProps, render, Checkbox, "checkbox");
+//component!('a, MatCheckbox, CheckboxProps, render, Checkbox, "checkbox");

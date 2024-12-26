@@ -11,45 +11,23 @@ use material_dioxus::{
 };
 
 fn main() {
-    dioxus_web::launch(app);
+    dioxus::launch(App);
 }
 
-fn app(cx: Scope) -> Element {
-    let circular_progress_closed = use_state(cx, || false);
-    let mut circular_progress_progress = use_state(cx, || 0.2);
-    let cb_value = use_state(cx, || true);
-    let switch_value = use_state(cx, || true);
-    let textfield_value = use_state(cx, String::new);
-    let basic_dialog_open = use_state(cx, || false);
-    let scrollable_dialog_open = use_state(cx, || false);
-    let textarea_value = use_state(cx, String::new);
+#[component]
+pub fn App() -> Element {
+    let circular_progress_closed = use_signal(|| false);
+    let mut circular_progress_progress = use_signal(|| 0.2);
+    let cb_value = use_signal(|| true);
+    let switch_value = use_signal(|| true);
+    let textfield_value = use_signal(String::new);
+    let basic_dialog_open = use_signal(|| false);
+    let scrollable_dialog_open = use_signal(|| false);
+    let textarea_value = use_signal(String::new);
 
-    render! {
+    rsx! {
         style {
-            dangerous_inner_html: "
-.demo {{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    border: 1px solid currentColor;
-    padding: 1rem;
-    margin: 1rem;
-}}
-
-body {{
-    background-color: var(--mdc-theme-background);
-}}
-
-html {{
-    color-scheme: light dark;
-}}
-
-.list-demo {{
-    padding: 1rem;
-    border: 1px dotted currentColor;
-    min-width: 15rem;
-}}
-"
+            dangerous_inner_html: include_str!("inline.css")
         }
         MatTheme {}
 
@@ -69,10 +47,10 @@ html {{
                 label: "Outlined",
                 outlined: true,
                 value: "{textarea_value}",
-                _oninput: {
+                /*_oninput: {
                     to_owned![textarea_value];
                     move |new_value| textarea_value.set(new_value)
-                },
+                },*/
                 max_length: 42,
                 char_counter: TextAreaCharCounter::External,
             }
@@ -114,19 +92,19 @@ html {{
         div {
             class: "demo",
             span {
-                onclick: move |_| basic_dialog_open.set(true),
+                //onclick: move |_| basic_dialog_open.set(true),
                 MatButton { raised: true, label: "basic" }
             }
             MatDialog {
                 heading: "Dialog Heading",
-                open: **basic_dialog_open,
-                _onclosed: {
+                //open: **basic_dialog_open,
+                /*_onclosed: {
                     to_owned![basic_dialog_open];
                     move |action| {
                         gloo_console::log!(action);
                         basic_dialog_open.set(false);
                     }
-                },
+                },*/
                 div { "Dialog body text" }
                 MatTextField { label: "I am auto-focused", dialog_initial_focus: true }
                 MatTextField { label: "I am not auto-focused" }
@@ -147,18 +125,18 @@ html {{
             }
 
             span {
-                onclick: move |_| scrollable_dialog_open.set(true),
+                //onclick: move |_| scrollable_dialog_open.set(true),
                 MatButton { raised: true, label: "scrollable" }
             }
             MatDialog {
                 heading: "Scrollable",
                 stacked: true,
-                open: **scrollable_dialog_open,
-                _onclosed: {
+                //open: **scrollable_dialog_open,
+                /*_onclosed: {
                     to_owned![scrollable_dialog_open];
                     move |_| scrollable_dialog_open.set(false)
-                },
-                div { ("Really long text will scroll. ").repeat(100) }
+                },*/
+                div { "Really long text will scroll. " }
                 MatDialogAction {
                     action_type: ActionType::Primary,
                     action: "primary",
@@ -209,10 +187,10 @@ html {{
                 label: "Outlined",
                 outlined: true,
                 value: "{textfield_value}",
-                _oninput: {
+                /*_oninput: {
                     to_owned![textfield_value];
                     move |new_value| textfield_value.set(new_value)
-                },
+                },*/
             }
             MatTextField { label: "Outlined", outlined: true, icon: "event", field_type: TextFieldType::Time }
             MatTextField { label: "Outlined", outlined: true, icon_trailing: "delete" }
@@ -304,10 +282,10 @@ html {{
             class: "demo",
             MatSwitch {}
             MatSwitch { selected: true }
-            MatSwitch { disabled: true, selected: **switch_value }
+            MatSwitch { disabled: true, /*selected: **switch_value*/ }
             span {
-                onclick: move |_| switch_value.set(!switch_value),
-                MatSwitch { selected: **switch_value }
+                //onclick: move |_| switch_value.set(!switch_value),
+                MatSwitch { /*selected: **switch_value*/ }
             }
             span { "selected: {switch_value}" }
         }
@@ -332,11 +310,11 @@ html {{
             MatCheckbox { disabled: true }
             MatCheckbox { reduced_touch_target: true }
             MatCheckbox {
-                checked: **cb_value,
-                _onchange: {
+                //checked: **cb_value,
+                /*_onchange: {
                     to_owned![cb_value];
                     move |new_value| cb_value.set(new_value)
-                },
+                },*/
             }
             span { "checked: {cb_value}" }
         }
@@ -345,29 +323,29 @@ html {{
             class: "demo",
 
             span {
-                onclick: move |_| circular_progress_closed.set(!circular_progress_closed),
+                //onclick: move |_| circular_progress_closed.set(!circular_progress_closed),
                 MatButton {
                     label: "toggle",
                     raised: true,
                 }
             }
             span {
-                onclick: move |_| circular_progress_progress += 0.1,
+                //onclick: move |_| circular_progress_progress += 0.1,
                 MatButton {
                     label: "increase progress",
                     raised: true,
                 }
             }
             MatCircularProgress {
-                closed: **circular_progress_closed,
-                progress: **circular_progress_progress,
+                //closed: **circular_progress_closed,
+                //progress: **circular_progress_progress,
             }
             MatCircularProgress {
-                closed: **circular_progress_closed,
+                //closed: **circular_progress_closed,
                 indeterminate: true,
             }
             MatCircularProgressFourColor {
-                closed: **circular_progress_closed,
+                //closed: **circular_progress_closed,
                 indeterminate: true,
             }
         }
@@ -405,99 +383,99 @@ html {{
     }
 }
 
-#[allow(non_snake_case)]
-fn ListDemo1(cx: Scope) -> Element {
-    let selected = use_state(cx, || None);
+#[component]
+fn ListDemo1() -> Element {
+    //let selected = use_signal(|| None);
 
-    render! {
+    rsx! {
         div {
             class: "list-demo",
             MatList {
-                _onaction: {
+                /*_onaction: {
                     to_owned![selected];
                     move |val: ListIndex| selected.set(val.unwrap_single())
-                },
+                },*/
                 MatListItem { "Item 0" }
                 MatListItem { "Item 1" }
                 MatListItem { "Item 2" }
                 MatListItem { "Item 3" }
             }
-            code { "selected: {selected:?}" }
+            //code { "selected: {selected:?}" }
         }
     }
 }
 
-#[allow(non_snake_case)]
-fn ListDemo2(cx: Scope) -> Element {
-    let selected = use_state(cx, HashSet::new);
+#[component]
+fn ListDemo2() -> Element {
+    //let selected = use_signal(HashSet::new);
 
-    render! {
+    rsx! {
         div {
             class: "list-demo",
             MatList {
                 multi: true,
                 activatable: true,
-                _onaction: {
+                /*_onaction: {
                     to_owned![selected];
                     move |val: ListIndex| selected.set(val.unwrap_multi())
-                },
+                },*/
                 MatListItem { "Item 0" }
                 MatListSeparator {}
-                MatListItem { "Item 1", initially_selected: true, initially_activated: true }
+                MatListItem { initially_selected: true, initially_activated: true, "Item 1"}
                 MatListSeparator {}
                 MatListItem { "Item 2" }
                 MatListSeparator {}
                 MatListItem { "Item 3" }
             }
-            code { "selected: {selected:?}" }
+            //code { "selected: {selected:?}" }
         }
     }
 }
 
-#[allow(non_snake_case)]
-fn ListDemo3(cx: Scope) -> Element {
-    let selected = use_state(cx, HashSet::new);
+#[component]
+fn ListDemo3() -> Element {
+    //let selected = use_signal(HashSet::new);
 
-    render! {
+    rsx! {
         div {
             class: "list-demo",
             MatList {
                 multi: true,
-                _onaction: {
+                /*_onaction: {
                     to_owned![selected];
                     move |val: ListIndex| selected.set(val.unwrap_multi())
-                },
+                },*/
                 MatCheckListItem { "Item 0" }
-                MatCheckListItem { "Item 1", initially_selected: true }
+                MatCheckListItem { initially_selected: true, "Item 1" }
                 MatListSeparator { padded: true }
-                MatCheckListItem { "Item 2", left: true }
-                MatCheckListItem { "Item 3", left: true }
+                MatCheckListItem { left: true, "Item 2" }
+                MatCheckListItem { left: true, "Item 3" }
             }
-            code { "selected: {selected:?}" }
+            //code { "selected: {selected:?}" }
         }
     }
 }
 
-#[allow(non_snake_case)]
-fn ListDemo4(cx: Scope) -> Element {
-    let selected = use_state(cx, HashSet::new);
+#[component]
+fn ListDemo4() -> Element {
+    //let selected = use_signal(HashSet::new);
 
-    render! {
+    rsx! {
         div {
             class: "list-demo",
             MatList {
                 multi: true,
-                _onaction: {
+                /*_onaction: {
                     to_owned![selected];
                     move |val: ListIndex| selected.set(val.unwrap_multi())
-                },
-                MatRadioListItem { "Item 0", group: "list-radio-1" }
-                MatRadioListItem { "Item 1", group: "list-radio-1", initially_selected: true }
+                },*/
+                MatRadioListItem { group: "list-radio-1", "Item 0" }
+                MatRadioListItem { group: "list-radio-1", initially_selected: true, "Item 1" }
                 MatListSeparator { padded: true }
-                MatRadioListItem { "Item 2", group: "list-radio-2", left: true, initially_selected: true }
-                MatRadioListItem { "Item 3", group: "list-radio-2", left: true }
+                MatRadioListItem { group: "list-radio-2", left: true, initially_selected: true, "Item 2" }
+                MatRadioListItem { group: "list-radio-2", left: true, "Item 3" }
             }
-            code { "selected: {selected:?}" }
+            //code { "selected: {selected:?}" }
         }
     }
 }

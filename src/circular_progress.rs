@@ -1,4 +1,4 @@
-use dioxus::{core::AttributeValue, prelude::*};
+use dioxus::prelude::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(module = "/build/mwc-circular-progress.js")]
@@ -17,7 +17,7 @@ loader_hack!(CircularProgress);
 /// Props for [`MatCircularProgress`]
 ///
 /// [MWC Documentation for properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/circular-progress#propertiesattributes)
-#[derive(Props, PartialEq)]
+#[derive(Clone, Props, PartialEq)]
 pub struct CircularProgressProps {
     #[props(default)]
     pub indeterminate: bool,
@@ -36,25 +36,26 @@ pub struct CircularProgressProps {
     pub slot: Option<String>,
 }
 
-fn render(cx: Scope<CircularProgressProps>) -> Element {
-    render! {
+#[component]
+pub fn MatCircularProgress(props: CircularProgressProps) -> Element {
+    rsx! {
         mwc-circular-progress {
-            indeterminate: bool_attr!(cx.props.indeterminate),
-            progress: AttributeValue::Float(cx.props.progress.into()),
-            density: AttributeValue::Int(cx.props.density),
-            closed: bool_attr!(cx.props.closed),
+            indeterminate: props.indeterminate,
+            progress: props.progress,
+            density: props.density,
+            closed: props.closed,
 
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-            slot: optional_string_attr!(cx.props.slot),
+            style: props.style,
+            class: props.class,
+            slot: props.slot,
         }
     }
 }
 
-component!(
+/*component!(
     MatCircularProgress,
     CircularProgressProps,
     render,
     CircularProgress,
     "circular-progress"
-);
+);*/

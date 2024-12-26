@@ -3,7 +3,7 @@
 #![allow(clippy::unused_unit)]
 #![doc = include_str!("../README.md")]
 
-use dioxus::prelude::ScopeState;
+use dioxus::prelude::*;
 use rand::distributions::Alphanumeric;
 use rand::distributions::DistString;
 use wasm_bindgen::prelude::*;
@@ -11,7 +11,6 @@ use wasm_bindgen::JsValue;
 mod utils;
 
 // this macro is defined here so we can access it in the modules
-#[allow(unused)]
 macro_rules! loader_hack {
     ($ty:ty) => {
         #[allow(dead_code)]
@@ -27,67 +26,6 @@ macro_rules! loader_hack {
     };
 }
 
-#[allow(unused)]
-macro_rules! component {
-    ($comp: ident, $props: ty, $html: expr, $mwc_to_initialize: ident, $mwc_name: literal) => {
-        paste::paste! {
-            #[doc = "The `mwc-" $mwc_name "` component"]
-            #[doc = ""]
-            #[doc = "[MWC Documentation](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/" $mwc_name ")"]
-            #[allow(non_snake_case)]
-            pub fn $comp(cx: Scope<$props>) -> Element {
-                $mwc_to_initialize::ensure_loaded();
-                $html(cx)
-            }
-        }
-   };
-    ('a, $comp: ident, $props: ty, $html: expr, $mwc_to_initialize: ident, $mwc_name: literal) => {
-        paste::paste! {
-            #[doc = "The `mwc-" $mwc_name "` component"]
-            #[doc = ""]
-            #[doc = "[MWC Documentation](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/" $mwc_name ")"]
-            #[allow(non_snake_case)]
-            pub fn $comp<'a>(cx: Scope<'a, $props<'a>>) -> Element<'a> {
-                $mwc_to_initialize::ensure_loaded();
-                $html(cx)
-            }
-        }
-   };
-}
-
-#[allow(unused)]
-macro_rules! string_attr {
-    ($value:expr) => {
-        ::dioxus::core::AttributeValue::Text(&$value)
-    };
-}
-
-#[allow(unused)]
-macro_rules! optional_string_attr {
-    ($value:expr) => {
-        $value
-            .as_ref()
-            .map(|s| {
-                if s.is_empty() {
-                    ::dioxus::core::AttributeValue::None
-                } else {
-                    ::dioxus::core::AttributeValue::Text(s.as_str())
-                }
-            })
-            .unwrap_or(::dioxus::core::AttributeValue::None)
-    };
-}
-
-#[allow(unused)]
-macro_rules! bool_attr {
-    ($value:expr) => {
-        $value
-            .then_some(::dioxus::core::AttributeValue::Bool(true))
-            .unwrap_or(::dioxus::core::AttributeValue::None)
-    };
-}
-
-#[allow(unused)]
 fn event_into_details(event: &web_sys::Event) -> JsValue {
     JsValue::from(event)
         .dyn_into::<web_sys::CustomEvent>()
@@ -95,26 +33,23 @@ fn event_into_details(event: &web_sys::Event) -> JsValue {
         .detail()
 }
 
-#[allow(unused)]
 fn event_details_into<T: JsCast>(event: &web_sys::Event) -> T {
     event_into_details(event).unchecked_into::<T>()
 }
 
-#[allow(unused)]
-fn use_id<'a>(cx: &'a ScopeState, prefix: &str) -> &'a str {
-    cx.use_hook(|| {
+fn use_id(prefix: impl AsRef<str>) -> String {
+    let prefix = prefix.as_ref();
+    use_hook(|| {
         let mut id = format!("{prefix}-");
         Alphanumeric.append_string(&mut rand::thread_rng(), &mut id, 11);
         // rerender the component immediately, so that code depending on the ID works on "the
         // first render".
-        cx.needs_update();
         id
     })
-    .as_str()
 }
 
-#[allow(unused)]
-fn get_elem_by_id(id: &str) -> Option<web_sys::Element> {
+fn get_elem_by_id(id: impl AsRef<str>) -> Option<web_sys::Element> {
+    let id = id.as_ref();
     web_sys::window()
         .unwrap()
         .document()
@@ -280,7 +215,7 @@ pub use utils::StaticCallback;
 
 #[wasm_bindgen(module = "/build/core.js")]
 extern "C" {
-    #[derive(Debug)]
+    //#[derive(Debug)]
     type Ripple;
 
     #[wasm_bindgen(getter, static_method_of = Ripple)]

@@ -15,9 +15,8 @@ loader_hack!(Formfield);
 /// Props for [`MatFormfield`]
 ///
 /// [MWC Documentation for properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/formfield#propertiesattributes)
-#[derive(Props)]
-pub struct FormfieldProps<'a> {
-    pub children: Element<'a>,
+#[derive(Clone, Props, PartialEq)]
+pub struct FormfieldProps {
     #[props(into)]
     pub label: Option<String>,
     #[props(default)]
@@ -35,24 +34,25 @@ pub struct FormfieldProps<'a> {
     pub slot: Option<String>,
     #[props(default)]
     pub dialog_initial_focus: bool,
+    pub children: Element,
 }
 
-fn render<'a>(cx: Scope<'a, FormfieldProps<'a>>) -> Element<'a> {
-    render! {
+#[component]
+pub fn MatFormfield(props: FormfieldProps) -> Element {
+    rsx! {
         mwc-formfield {
-            label: optional_string_attr!(cx.props.label),
-            alignEnd: bool_attr!(cx.props.align_end),
-            spaceBetween: bool_attr!(cx.props.space_between),
-            nowrap: bool_attr!(cx.props.nowrap),
+            label: props.label,
+            alignEnd: props.align_end,
+            spaceBetween: props.space_between,
+            nowrap: props.nowrap,
 
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-            slot: optional_string_attr!(cx.props.slot),
-            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
-
-            &cx.props.children
+            style: props.style,
+            class: props.class,
+            slot: props.slot,
+            dialogInitialFocus: props.dialog_initial_focus,
+            {props.children}
         }
     }
 }
 
-component!('a, MatFormfield, FormfieldProps, render, Formfield, "formfield");
+//component!('a, MatFormfield, FormfieldProps, render, Formfield, "formfield");

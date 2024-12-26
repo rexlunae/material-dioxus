@@ -2,8 +2,7 @@
 // pub use weak_component_link::*;
 
 use std::rc::Rc;
-
-use dioxus::prelude::*;
+use std::cell::RefCell;
 
 /// See <https://github.com/DioxusLabs/dioxus/issues/1374>
 #[derive(Clone)]

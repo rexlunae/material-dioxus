@@ -3,7 +3,6 @@ use std::marker::PhantomData;
 use super::set_on_input_handler;
 use crate::text_inputs::{validity_state::ValidityStateJS, TextFieldType, ValidityTransform};
 use crate::StaticCallback;
-use dioxus::core::AttributeValue;
 use dioxus::prelude::*;
 use gloo::events::EventListener;
 use wasm_bindgen::prelude::*;
@@ -43,8 +42,8 @@ loader_hack!(TextField);
 /// MWC Documentation:
 ///
 /// - [Properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/textfield#propertiesattributes)
-#[derive(Props)]
-pub struct TextFieldProps<'a> {
+#[derive(Clone, Props, PartialEq)]
+pub struct TextFieldProps {
     #[props(default)]
     pub open: bool,
     #[props(into)]
@@ -99,17 +98,10 @@ pub struct TextFieldProps<'a> {
     #[props(default)]
     pub validate_on_initial_render: bool,
     #[props(into)]
-    // the name cannot start with `on` or dioxus will expect an `EventHandler` which aren't static
-    // and thus cannot be used here
-    pub _oninput: Option<StaticCallback<String>>,
-    _lifetime: Option<PhantomData<&'a ()>>,
-    #[props(into)]
     pub name: Option<String>,
 
     #[props(default)]
     pub webkit_date_picker: bool,
-    #[props(into)]
-    pub _onchange: Option<StaticCallback<String>>,
 
     #[props(into, default)]
     pub style: String,
@@ -121,23 +113,24 @@ pub struct TextFieldProps<'a> {
     pub dialog_initial_focus: bool,
 }
 
-fn render<'a>(cx: Scope<'a, TextFieldProps<'a>>) -> Element<'a> {
-    let id = crate::use_id(cx, "textfield");
-    let input_listener = cx.use_hook(|| None);
-    let change_listener = cx.use_hook(|| None);
-    let validity_transform_closure = cx.use_hook(|| None);
-    if let Some(elem) = crate::get_elem_by_id(id) {
+#[component]
+pub fn MatTextField(props: TextFieldProps) -> Element {
+    let id = crate::use_id("textfield");
+    //let input_listener = use_hook(|| None);
+    //let change_listener = use_hook(|| None);
+    //let validity_transform_closure = use_hook(|| None);
+    if let Some(elem) = crate::get_elem_by_id(&id) {
         let target = elem.clone();
         let textfield = JsValue::from(elem).dyn_into::<TextField>().unwrap();
-        textfield.set_type(&JsValue::from(cx.props.field_type.as_str()));
+        textfield.set_type(&JsValue::from(props.field_type.as_str()));
         textfield.set_value(&JsValue::from_str(
-            cx.props
+            props
                 .value
                 .as_ref()
                 .map(|s| s.as_ref())
                 .unwrap_or_default(),
         ));
-        if let Some(listener) = cx.props._oninput.clone() {
+        /*if let Some(listener) = props._oninput.clone() {
             *input_listener = Some(set_on_input_handler(&target, listener, |(_, detail)| {
                 detail
                     .unchecked_into::<MatTextFieldInputEvent>()
@@ -145,64 +138,52 @@ fn render<'a>(cx: Scope<'a, TextFieldProps<'a>>) -> Element<'a> {
                     .value()
             }));
         }
-        if let Some(listener) = cx.props._onchange.clone() {
+        if let Some(listener) = props._onchange.clone() {
             to_owned![textfield];
             *change_listener = Some(EventListener::new(&target, "change", move |_| {
                 listener.call(textfield.value())
             }));
-        }
-        if let (Some(transform), None) = (
-            cx.props.validity_transform.clone(),
-            &validity_transform_closure,
-        ) {
-            *validity_transform_closure = Some(Closure::wrap(Box::new(
-                move |s: String, v: NativeValidityState| -> ValidityStateJS {
-                    transform.0(s, v).into()
-                },
-            )
-                as Box<dyn Fn(String, NativeValidityState) -> ValidityStateJS>));
-            textfield.set_validity_transform(validity_transform_closure.as_ref().unwrap());
-        }
+        }*/
     }
-    render! {
+    rsx! {
         mwc-textfield {
             id: id,
 
-            open: bool_attr!(cx.props.open),
-            label: optional_string_attr!(cx.props.label),
-            placeholder: optional_string_attr!(cx.props.placeholder),
-            prefix: optional_string_attr!(cx.props.prefix),
-            suffix: optional_string_attr!(cx.props.suffix),
-            icon: optional_string_attr!(cx.props.icon),
-            iconTrailing: optional_string_attr!(cx.props.icon_trailing),
-            disabled: bool_attr!(cx.props.disabled),
-            charCounter: bool_attr!(cx.props.char_counter),
-            outlined: bool_attr!(cx.props.outlined),
-            helper: optional_string_attr!(cx.props.helper),
-            helperPersistent: bool_attr!(cx.props.helper_persistent),
-            required: bool_attr!(cx.props.required),
-            maxLength: cx.props.max_length.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            validationMessage: optional_string_attr!(cx.props.validation_message),
-            pattern: optional_string_attr!(cx.props.pattern),
-            min: optional_string_attr!(cx.props.min),
-            max: optional_string_attr!(cx.props.max),
-            size: cx.props.size.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            step: cx.props.step.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
-            autoValidate: bool_attr!(cx.props.auto_validate),
-            validateOnInitialRender: bool_attr!(cx.props.validate_on_initial_render),
-            name: optional_string_attr!(cx.props.name),
-            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
-            webkitDatePicker: bool_attr!(cx.props.webkit_date_picker),
+            open: props.open,
+            label: props.label,
+            placeholder: props.placeholder,
+            prefix: props.prefix,
+            suffix: props.suffix,
+            icon: props.icon,
+            iconTrailing: props.icon_trailing,
+            disabled: props.disabled,
+            charCounter: props.char_counter,
+            outlined: props.outlined,
+            helper: props.helper,
+            helperPersistent: props.helper_persistent,
+            required: props.required,
+            //maxLength: props.max_length.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            validationMessage: props.validation_message,
+            pattern: props.pattern,
+            min: props.min,
+            max: props.max,
+            //size: props.size.map(|v| format_args!("{v}").into_value(bump())).unwrap_or(AttributeValue::None),
+            //step: props.step.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            autoValidate: props.auto_validate,
+            validateOnInitialRender: props.validate_on_initial_render,
+            name: props.name,
+            //dialogInitialFocus: props.dialog_initial_focus,
+            webkitDatePicker: props.webkit_date_picker,
 
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-            slot: optional_string_attr!(cx.props.slot),
-            dialogInitialFocus: bool_attr!(cx.props.dialog_initial_focus),
+            style: props.style,
+            class: props.class,
+            slot: props.slot,
+            //dialogInitialFocus: props.dialog_initial_focus,
         }
     }
 }
 
-component!('a, MatTextField, TextFieldProps, render, TextField, "textfield");
+//component!('a, MatTextField, TextFieldProps, render, TextField, "textfield");
 
 #[wasm_bindgen]
 extern "C" {

@@ -22,8 +22,8 @@ loader_hack!(RadioListItem);
 ///
 /// MWC Documentation [properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/list#mwc-radio-list-item-1)
 /// and [events](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/list#mwc-radio-list-item-2)
-#[derive(Props)]
-pub struct RadioListItemProps<'a> {
+#[derive(Clone, Props, PartialEq)]
+pub struct RadioListItemProps {
     #[props(default)]
     pub left: bool,
     #[props(into)]
@@ -31,49 +31,47 @@ pub struct RadioListItemProps<'a> {
     #[props(default = GraphicType::Control)]
     pub graphic: GraphicType,
     /// Binds to `request-selected` event on `mwc-list-item`.
-    #[props(into)]
-    pub _on_request_selected: Option<StaticCallback<RequestSelectedDetail>>,
     #[props(default)]
     pub initially_selected: bool,
-    pub children: Element<'a>,
 
     #[props(into, default)]
     pub style: String,
     #[props(into, default)]
     pub class: String,
+    pub children: Element,
 }
 
-fn render<'a>(cx: Scope<'a, RadioListItemProps<'a>>) -> Element<'a> {
-    let id = crate::use_id(cx, "radio-list-item");
-    let request_selected_listener = cx.use_hook(|| None);
-    if let Some(elem) = crate::get_elem_by_id(id) {
+#[component]
+pub fn MatRadioListItem(props: RadioListItemProps) -> Element {
+    let id = crate::use_id("radio-list-item");
+    //let request_selected_listener = use_hook(|| None);
+    if let Some(elem) = crate::get_elem_by_id(&id) {
         let target = elem;
-        if let Some(listener) = cx.props._on_request_selected.clone() {
+        /*if let Some(listener) = props._on_request_selected.clone() {
             *request_selected_listener = Some(make_request_selected_listener(&target, listener));
-        }
+        }*/
     }
 
-    render! {
+    rsx! {
         mwc-radio-list-item {
+            id: id.clone(),
+
             onmounted: move |_| {
-                if let Some(elem) = crate::get_elem_by_id(id) {
+                if let Some(elem) = crate::get_elem_by_id(&id) {
                     let item = JsValue::from(elem).dyn_into::<RadioListItem>().unwrap();
-                    item.set_selected(cx.props.initially_selected);
+                    item.set_selected(props.initially_selected);
                 }
             },
 
-            id: id,
 
-            left: bool_attr!(cx.props.left),
-            graphic: cx.props.graphic.as_str(),
-            group: optional_string_attr!(cx.props.group),
+            left: props.left,
+            graphic: props.graphic.as_str(),
+            group: props.group,
 
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-
-            &cx.props.children
+            style: props.style,
+            class: props.class,
         }
     }
 }
 
-component!('a, MatRadioListItem, RadioListItemProps, render, RadioListItem, "radio-list-item");
+//component!('a, MatRadioListItem, RadioListItemProps, render, RadioListItem, "radio-list-item");

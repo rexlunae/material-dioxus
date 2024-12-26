@@ -62,8 +62,8 @@ loader_hack!(List);
 ///
 /// - [Properties](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/list#mwc-list-1)
 /// - [Events](https://github.com/material-components/material-components-web-components/tree/v0.27.0/packages/list#mwc-list-2)
-#[derive(Props)]
-pub struct ListProps<'a> {
+#[derive(Clone, Props, PartialEq)]
+pub struct ListProps {
     #[props(default)]
     pub activatable: bool,
     #[props(default)]
@@ -78,14 +78,6 @@ pub struct ListProps<'a> {
     pub inner_role: Option<String>,
     #[props(default)]
     pub noninteractive: bool,
-    /// Binds to `action` event on `mwc-list`
-    #[props(into)]
-    // the name cannot start with `on` or dioxus will expect an `EventHandler` which aren't static
-    // and thus cannot be used here
-    pub _onaction: Option<StaticCallback<ListIndex>>,
-    /// Binds to `selected` event `mwc-list`
-    #[props(into)]
-    pub _onselected: Option<StaticCallback<SelectedDetail>>,
     // TODO: make methods callable
     // /// [`WeakComponentLink`] for `MatList` which provides the following methods
     // /// - ```toggle(&self, index: usize, force: bool)```
@@ -93,59 +85,41 @@ pub struct ListProps<'a> {
     // /// - ```focus_item_at_index(&self, index: usize)```
     // ///
     // /// See [`WeakComponentLink`] documentation for more information
-    // #[props(default)]
-    // pub list_link: WeakComponentLink<MatList>,
-    pub children: Element<'a>,
-
     #[props(into, default)]
     pub style: String,
     #[props(into, default)]
     pub class: String,
     #[props(into)]
     pub slot: Option<String>,
+    pub children: Element,
 }
 
-fn render<'a>(cx: Scope<'a, ListProps<'a>>) -> Element<'a> {
-    let id = crate::use_id(cx, "list");
-    let selected_listener = cx.use_hook(|| None);
-    let action_listener = cx.use_hook(|| None);
-    if let Some(elem) = crate::get_elem_by_id(id) {
-        let target = elem.clone();
-        let list = JsValue::from(elem).dyn_into::<List>().unwrap();
-        if let Some(listener) = cx.props._onselected.clone() {
-            *selected_listener = Some(EventListener::new(&target, "selected", move |event| {
-                let val = SelectedDetail::from(event_into_details(event));
-                listener.call(val)
-            }));
-        }
-        if let Some(listener) = cx.props._onaction.clone() {
-            *action_listener = Some(EventListener::new(&target, "action", move |_| {
-                let val: JsValue = list.index();
-                let index = ListIndex::from(val);
-                listener.call(index)
-            }));
-        }
+#[component]
+pub fn MatList(props: ListProps) -> Element {
+    let id = crate::use_id("list");
+    //let selected_listener = use_hook(|| None);
+    //let action_listener = use_hook(|| None);
+    if let Some(elem) = crate::get_elem_by_id(&id) {
+        let _target = elem.clone();
+        let _list = JsValue::from(elem).dyn_into::<List>().unwrap();
     }
 
-    render! {
+    rsx! {
         mwc-list {
             id: id,
 
-            activatable: bool_attr!(cx.props.activatable),
-            rootTabbable: bool_attr!(cx.props.root_tabbable),
-            multi: bool_attr!(cx.props.multi),
-            wrapFocus: bool_attr!(cx.props.wrap_focus),
-            itemRoles: optional_string_attr!(cx.props.item_roles),
-            innerRole: optional_string_attr!(cx.props.inner_role),
-            noninteractive: bool_attr!(cx.props.noninteractive),
+            activatable: props.activatable,
+            rootTabbable: props.root_tabbable,
+            multi: props.multi,
+            wrapFocus: props.wrap_focus,
+            itemRoles: props.item_roles,
+            innerRole: props.inner_role,
+            noninteractive: props.noninteractive,
 
-            style: string_attr!(cx.props.style),
-            class: string_attr!(cx.props.class),
-            slot: optional_string_attr!(cx.props.slot),
-
-            &cx.props.children
+            style: props.style,
+            class: props.class,
+            slot: props.slot,
+            {props.children}
         }
     }
 }
-
-component!('a, MatList, ListProps, render, List, "list");
