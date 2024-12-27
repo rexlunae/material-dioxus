@@ -54,5 +54,3 @@ pub fn MatFormfield(props: FormfieldProps) -> Element {
         }
     }
 }
-
-//component!('a, MatFormfield, FormfieldProps, render, Formfield, "formfield");
