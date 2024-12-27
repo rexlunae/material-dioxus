@@ -164,8 +164,6 @@ pub fn MatDialog(props: DialogProps) -> Element {
     }
 }
 
-//component!('a, MatDialog, DialogProps, render, Dialog, "dialog");
-
 #[wasm_bindgen]
 extern "C" {
     type DialogActionType;
