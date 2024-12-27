@@ -168,22 +168,19 @@ pub fn MatTextField(props: TextFieldProps) -> Element {
             min: props.min,
             max: props.max,
             //size: props.size.map(|v| format_args!("{v}").into_value(bump())).unwrap_or(AttributeValue::None),
-            //step: props.step.map(|v| format_args!("{v}").into_value(cx.bump())).unwrap_or(AttributeValue::None),
+            //step: props.step.map(|v| format_args!("{v}").into_value(bump())).unwrap_or(AttributeValue::None),
             autoValidate: props.auto_validate,
             validateOnInitialRender: props.validate_on_initial_render,
             name: props.name,
-            //dialogInitialFocus: props.dialog_initial_focus,
             webkitDatePicker: props.webkit_date_picker,
 
             style: props.style,
             class: props.class,
             slot: props.slot,
-            //dialogInitialFocus: props.dialog_initial_focus,
+            dialogInitialFocus: props.dialog_initial_focus,
         }
     }
 }
-
-//component!('a, MatTextField, TextFieldProps, render, TextField, "textfield");
 
 #[wasm_bindgen]
 extern "C" {
