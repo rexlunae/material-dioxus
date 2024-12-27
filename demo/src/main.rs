@@ -1,9 +1,6 @@
-use std::collections::HashSet;
-
 use dioxus::prelude::*;
 use material_dioxus::{
     dialog::{ActionType, MatDialogAction},
-    list::ListIndex,
     text_inputs::{TextAreaCharCounter, TextFieldType, ValidityState, ValidityTransform},
     MatButton, MatCheckListItem, MatCheckbox, MatCircularProgress, MatCircularProgressFourColor,
     MatDialog, MatFab, MatFormfield, MatIcon, MatIconButton, MatList, MatListItem,
@@ -16,13 +13,13 @@ fn main() {
 
 #[component]
 pub fn App() -> Element {
-    let circular_progress_closed = use_signal(|| false);
+    let mut circular_progress_closed = use_signal(|| false);
     let mut circular_progress_progress = use_signal(|| 0.2);
-    let cb_value = use_signal(|| true);
-    let switch_value = use_signal(|| true);
-    let textfield_value = use_signal(String::new);
-    let basic_dialog_open = use_signal(|| false);
-    let scrollable_dialog_open = use_signal(|| false);
+    let mut cb_value = use_signal(|| true);
+    let mut switch_value = use_signal(|| true);
+    let mut textfield_value = use_signal(String::new);
+    let mut basic_dialog_open = use_signal(|| false);
+    let mut scrollable_dialog_open = use_signal(|| false);
     let textarea_value = use_signal(String::new);
 
     rsx! {
@@ -47,10 +44,7 @@ pub fn App() -> Element {
                 label: "Outlined",
                 outlined: true,
                 value: "{textarea_value}",
-                /*_oninput: {
-                    to_owned![textarea_value];
-                    move |new_value| textarea_value.set(new_value)
-                },*/
+                //oninput: move |new_value| textarea_value.set(new_value),
                 max_length: 42,
                 char_counter: TextAreaCharCounter::External,
             }
@@ -92,7 +86,7 @@ pub fn App() -> Element {
         div {
             class: "demo",
             span {
-                //onclick: move |_| basic_dialog_open.set(true),
+                onclick: move |_| basic_dialog_open.set(true),
                 MatButton { raised: true, label: "basic" }
             }
             MatDialog {
@@ -125,7 +119,7 @@ pub fn App() -> Element {
             }
 
             span {
-                //onclick: move |_| scrollable_dialog_open.set(true),
+                onclick: move |_| scrollable_dialog_open.set(true),
                 MatButton { raised: true, label: "scrollable" }
             }
             MatDialog {
@@ -284,8 +278,8 @@ pub fn App() -> Element {
             MatSwitch { selected: true }
             MatSwitch { disabled: true, /*selected: **switch_value*/ }
             span {
-                //onclick: move |_| switch_value.set(!switch_value),
-                MatSwitch { /*selected: **switch_value*/ }
+                onclick: move |_| switch_value.set(!switch_value()),
+                MatSwitch { selected: switch_value() }
             }
             span { "selected: {switch_value}" }
         }
@@ -323,29 +317,29 @@ pub fn App() -> Element {
             class: "demo",
 
             span {
-                //onclick: move |_| circular_progress_closed.set(!circular_progress_closed),
+                onclick: move |_| circular_progress_closed.set(!circular_progress_closed()),
                 MatButton {
                     label: "toggle",
                     raised: true,
                 }
             }
             span {
-                //onclick: move |_| circular_progress_progress += 0.1,
+                onclick: move |_| circular_progress_progress.set(0.1 + circular_progress_progress()),
                 MatButton {
                     label: "increase progress",
                     raised: true,
                 }
             }
             MatCircularProgress {
-                //closed: **circular_progress_closed,
-                //progress: **circular_progress_progress,
+                closed: circular_progress_closed(),
+                progress: circular_progress_progress(),
             }
             MatCircularProgress {
-                //closed: **circular_progress_closed,
+                closed: circular_progress_closed(),
                 indeterminate: true,
             }
             MatCircularProgressFourColor {
-                //closed: **circular_progress_closed,
+                closed: circular_progress_closed(),
                 indeterminate: true,
             }
         }

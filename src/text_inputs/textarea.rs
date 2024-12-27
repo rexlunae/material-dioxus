@@ -137,6 +137,8 @@ pub struct TextAreaProps {
     pub slot: Option<String>,
     #[props(default)]
     pub dialog_initial_focus: bool,
+    #[props(default)]
+    pub oninput: EventHandler<FormEvent>,
 }
 
 #[component]
@@ -206,6 +208,7 @@ pub fn MatTextArea(props: TextAreaProps) -> Element {
             style: props.style,
             class: props.class,
             slot: props.slot,
+            oninput: move |event| props.oninput.call(event),
             dialogInitialFocus: props.dialog_initial_focus,
         }
     }

@@ -94,6 +94,18 @@ all-components = [
 full = ["all-components", "theming"]
 default = []
 
+[profile]
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"
+
 [package.metadata.docs.rs]
 all-features = true
 default-target = "wasm32-unknown-unknown"
