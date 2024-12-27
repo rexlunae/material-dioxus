@@ -60,5 +60,3 @@ pub fn MatFab(props: FabProps) -> Element {
         }
     }
 }
-
-//component!('a, MatFab, FabProps, render, Fab, "fab");
