@@ -15,9 +15,9 @@ fn main() {
 pub fn App() -> Element {
     let mut circular_progress_closed = use_signal(|| false);
     let mut circular_progress_progress = use_signal(|| 0.2);
-    let mut cb_value = use_signal(|| true);
+    let cb_value = use_signal(|| true);
     let mut switch_value = use_signal(|| true);
-    let mut textfield_value = use_signal(String::new);
+    let textfield_value = use_signal(String::new);
     let mut basic_dialog_open = use_signal(|| false);
     let mut scrollable_dialog_open = use_signal(|| false);
     let textarea_value = use_signal(String::new);
@@ -30,9 +30,13 @@ pub fn App() -> Element {
 
         div {
             class: "demo",
+            p { "ListDemo1:" }
             ListDemo1 {}
+            p { "ListDemo2:" }
             ListDemo2 {}
+            p { "ListDemo3:" }
             ListDemo3 {}
+            p { "ListDemo4:" }
             ListDemo4 {}
         }
 
@@ -85,13 +89,14 @@ pub fn App() -> Element {
 
         div {
             class: "demo",
+            p {"MatDialog:"}
             span {
                 onclick: move |_| basic_dialog_open.set(true),
                 MatButton { raised: true, label: "basic" }
             }
             MatDialog {
                 heading: "Dialog Heading",
-                //open: **basic_dialog_open,
+                open: basic_dialog_open(),
                 /*_onclosed: {
                     to_owned![basic_dialog_open];
                     move |action| {
@@ -125,7 +130,7 @@ pub fn App() -> Element {
             MatDialog {
                 heading: "Scrollable",
                 stacked: true,
-                //open: **scrollable_dialog_open,
+                open: scrollable_dialog_open(),
                 /*_onclosed: {
                     to_owned![scrollable_dialog_open];
                     move |_| scrollable_dialog_open.set(false)
@@ -276,7 +281,7 @@ pub fn App() -> Element {
             class: "demo",
             MatSwitch {}
             MatSwitch { selected: true }
-            MatSwitch { disabled: true, /*selected: **switch_value*/ }
+            MatSwitch { disabled: true, selected: switch_value() }
             span {
                 onclick: move |_| switch_value.set(!switch_value()),
                 MatSwitch { selected: switch_value() }
@@ -304,7 +309,7 @@ pub fn App() -> Element {
             MatCheckbox { disabled: true }
             MatCheckbox { reduced_touch_target: true }
             MatCheckbox {
-                //checked: **cb_value,
+                checked: cb_value(),
                 /*_onchange: {
                     to_owned![cb_value];
                     move |new_value| cb_value.set(new_value)
