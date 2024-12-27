@@ -70,6 +70,7 @@ pub fn MatRadioListItem(props: RadioListItemProps) -> Element {
 
             style: props.style,
             class: props.class,
+            {props.children}
         }
     }
 }
